@@ -1,0 +1,2431 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reward Nest Admin - সম্পূর্ণ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: #0f0f1a; color: #e5e5e5; }
+        
+        .sidebar { 
+            background: linear-gradient(180deg, #1a1a2e, #0d0d18);
+            color: #a0a0b0;
+            border-right: 1px solid rgba(255,255,255,0.05);
+            width: 240px;
+            flex-shrink: 0;
+            overflow-y: auto;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+        }
+        .sidebar a { 
+            border-left: 3px solid transparent; 
+            transition: all 0.3s ease;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #a0a0b0;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .sidebar a:hover { background-color: rgba(255,255,255,0.05); color: white; }
+        .sidebar a.active { 
+            background: linear-gradient(90deg, rgba(79, 70, 229, 0.2), transparent);
+            color: #818cf8;
+            border-left-color: #818cf8;
+        }
+        .sidebar .logo {
+            padding: 24px 20px;
+            font-size: 22px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff8c00, #ff6b00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .stat-card {
+            background: linear-gradient(145deg, #1a1a2e, #14141f);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 140, 0, 0.2);
+            box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+        }
+        .stat-card .icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+        .stat-card .number { font-size: 32px; font-weight: 800; color: #fff; }
+        .stat-card .label { color: #888; font-size: 14px; font-weight: 500; }
+        
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn:active { transform: scale(0.95); }
+        .btn-primary { background: linear-gradient(135deg, #4f46e5, #6366f1); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(79, 70, 229, 0.3); }
+        .btn-success { background: linear-gradient(135deg, #10b981, #34d399); color: white; }
+        .btn-success:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(16, 185, 129, 0.3); }
+        .btn-danger { background: linear-gradient(135deg, #ef4444, #f87171); color: white; }
+        .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(239, 68, 68, 0.3); }
+        .btn-warning { background: linear-gradient(135deg, #f59e0b, #fbbf24); color: white; }
+        .btn-warning:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(245, 158, 11, 0.3); }
+        .btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.1); color: #a0a0b0; }
+        .btn-outline:hover { background: rgba(255,255,255,0.05); color: white; }
+        .btn-sm { padding: 6px 14px; font-size: 12px; }
+        .btn-xs { padding: 4px 10px; font-size: 10px; }
+        
+        .table-container {
+            background: linear-gradient(145deg, #1a1a2e, #14141f);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            overflow: hidden;
+            overflow-x: auto;
+        }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { 
+            padding: 16px 20px; 
+            text-align: left; 
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #666;
+            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        td { 
+            padding: 14px 20px; 
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            font-size: 14px;
+            color: #d0d0d0;
+        }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+        
+        .input-field {
+            background: #1a1a2e;
+            border: 1px solid #2a2a4e;
+            border-radius: 10px;
+            padding: 12px 16px;
+            color: white;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            border-color: #ff8c00;
+            outline: none;
+            box-shadow: 0 0 30px rgba(255, 140, 0, 0.05);
+        }
+        .input-field::placeholder { color: #555; }
+        textarea.input-field { resize: vertical; min-height: 100px; }
+        
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .badge-active { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .badge-blocked { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+        .badge-pending { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .badge-approved { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .badge-rejected { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+        .badge-verified { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .badge-unverified { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+        .badge-expired { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+        
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #14141f; }
+        ::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 10px; }
+        
+        .login-container {
+            background: linear-gradient(135deg, #1a1a2e, #0d0d18);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 24px;
+            padding: 48px;
+            max-width: 420px;
+            width: 100%;
+        }
+        
+        .notif-item {
+            background: #1a1a2e;
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.3s ease;
+        }
+        .notif-item:hover { border-color: rgba(255, 140, 0, 0.2); }
+        
+        .screenshot-thumb {
+            max-width: 80px;
+            max-height: 80px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid #2a2a4e;
+            transition: all 0.3s ease;
+        }
+        .screenshot-thumb:hover {
+            border-color: #f97316;
+            transform: scale(1.05);
+        }
+        
+        .image-modal {
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(10px);
+        }
+        .image-modal img {
+            max-width: 90vw;
+            max-height: 85vh;
+            border-radius: 12px;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+        
+        #admin-notif-dropdown {
+            background: #1a1a2e;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            min-width: 320px;
+            max-width: 400px;
+        }
+        #admin-notif-dropdown .notif-item {
+            background: transparent;
+            border-radius: 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        #admin-notif-dropdown .notif-item:last-child { border-bottom: none; }
+        #admin-notif-dropdown .notif-item:hover { background: rgba(255,255,255,0.02); }
+        
+        @media (max-width: 768px) {
+            .sidebar { width: 60px; }
+            .sidebar .logo { font-size: 16px; padding: 16px 12px; text-align: center; }
+            .sidebar a span { display: none; }
+            .sidebar a { justify-content: center; padding: 12px; }
+            .main-content { padding: 16px; }
+            #admin-notif-dropdown { right: -60px; min-width: 280px; }
+        }
+        
+        .main-content { flex: 1; padding: 32px; overflow-y: auto; height: 100vh; }
+        .app-container { display: flex; height: 100vh; }
+        
+        .admin-header {
+            background: rgba(20, 20, 31, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 12px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .theme-toggle {
+            width: 42px;
+            height: 24px;
+            background: #2a2a4e;
+            border-radius: 12px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        .theme-toggle .slider {
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            transition: all 0.3s ease;
+        }
+        .theme-toggle.light {
+            background: #818cf8;
+        }
+        .theme-toggle.light .slider {
+            left: 21px;
+        }
+        body.light-mode {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+        body.light-mode .sidebar {
+            background: #ffffff;
+            border-right: 1px solid #e2e8f0;
+        }
+        body.light-mode .sidebar a {
+            color: #64748b;
+        }
+        body.light-mode .sidebar a:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+        body.light-mode .sidebar a.active {
+            background: rgba(79, 70, 229, 0.08);
+            color: #4f46e5;
+        }
+        body.light-mode .stat-card,
+        body.light-mode .table-container,
+        body.light-mode .login-container,
+        body.light-mode .notif-item,
+        body.light-mode #admin-notif-dropdown {
+            background: #ffffff;
+            border-color: #e2e8f0;
+        }
+        body.light-mode .stat-card .number { color: #0f172a; }
+        body.light-mode .stat-card .label { color: #64748b; }
+        body.light-mode .input-field {
+            background: #f1f5f9;
+            border-color: #e2e8f0;
+            color: #0f172a;
+        }
+        body.light-mode .input-field:focus { border-color: #4f46e5; }
+        body.light-mode .admin-header {
+            background: rgba(255,255,255,0.9);
+            border-bottom: 1px solid #e2e8f0;
+        }
+        body.light-mode .badge-active { background: rgba(16, 185, 129, 0.15); color: #059669; }
+        body.light-mode .badge-blocked { background: rgba(239, 68, 68, 0.15); color: #dc2626; }
+        body.light-mode .badge-pending { background: rgba(245, 158, 11, 0.15); color: #d97706; }
+        body.light-mode .badge-approved { background: rgba(16, 185, 129, 0.15); color: #059669; }
+        body.light-mode .badge-rejected { background: rgba(239, 68, 68, 0.15); color: #dc2626; }
+        body.light-mode .badge-verified { background: rgba(16, 185, 129, 0.15); color: #059669; }
+        body.light-mode .badge-unverified { background: rgba(239, 68, 68, 0.15); color: #dc2626; }
+        body.light-mode .sidebar .logo {
+            background: linear-gradient(135deg, #ff8c00, #ff6b00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        body.light-mode .btn-outline {
+            border-color: #e2e8f0;
+            color: #64748b;
+        }
+        body.light-mode .btn-outline:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+        
+        .promo-code-box {
+            background: linear-gradient(135deg, #1a1a2e, #0d0d18);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: inline-block;
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+        .promo-code-box .code {
+            color: #fbbf24;
+            font-size: 18px;
+        }
+        .promo-code-box .used {
+            color: #6b7280;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+        
+        /* প্রোমো জেনারেট স্ট্যাটাস */
+        #promo-gen-status {
+            transition: all 0.3s ease;
+        }
+        #promo-gen-status .success-box {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        #promo-gen-status .error-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        #promo-gen-status .loading-box {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========================================================== -->
+    <!-- 🔐 LOGIN VIEW -->
+    <!-- ========================================================== -->
+    <div id="admin-login-view" class="min-h-screen flex items-center justify-center bg-[#0f0f1a] p-4">
+        <div class="login-container">
+            <div class="text-center mb-8">
+                <div class="text-5xl mb-3">🔐</div>
+                <h1 class="text-3xl font-black text-white">অ্যাডমিন প্যানেল</h1>
+                <p class="text-gray-500 text-sm mt-1">লগইন করে ড্যাশবোর্ড অ্যাক্সেস করুন</p>
+            </div>
+            <input id="admin-email" type="email" placeholder="অ্যাডমিন ইমেইল" class="input-field mb-4">
+            <input id="admin-password" type="password" placeholder="পাসওয়ার্ড" class="input-field mb-6">
+            <button id="admin-login-btn" class="btn btn-primary w-full text-lg justify-center">লগইন করুন</button>
+        </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- 📊 ADMIN DASHBOARD -->
+    <!-- ========================================================== -->
+    <div id="admin-dashboard" class="hidden">
+        <div class="app-container">
+            
+            <!-- ==================== SIDEBAR ==================== -->
+            <aside class="sidebar" id="admin-sidebar">
+                <div class="logo">💰 RN</div>
+                <nav class="mt-4">
+                    <a class="nav-link active" data-page="dashboard-page">
+                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                        <span>ড্যাশবোর্ড</span>
+                    </a>
+                    <a class="nav-link" data-page="users-page">
+                        <i data-lucide="users" class="w-5 h-5"></i>
+                        <span>ইউজার</span>
+                    </a>
+                    <a class="nav-link" data-page="verification-page">
+                        <i data-lucide="shield-check" class="w-5 h-5"></i>
+                        <span>ভেরিফিকেশন</span>
+                    </a>
+                    <a class="nav-link" data-page="withdrawals-page">
+                        <i data-lucide="dollar-sign" class="w-5 h-5"></i>
+                        <span>উত্তোলন</span>
+                    </a>
+                    <a class="nav-link" data-page="promo-page">
+                        <i data-lucide="ticket" class="w-5 h-5"></i>
+                        <span>প্রোমো কোড</span>
+                    </a>
+                    <a class="nav-link" data-page="notifications-page">
+                        <i data-lucide="bell" class="w-5 h-5"></i>
+                        <span>নোটিফিকেশন</span>
+                    </a>
+                    <a class="nav-link" data-page="settings-page">
+                        <i data-lucide="settings" class="w-5 h-5"></i>
+                        <span>সেটিংস</span>
+                    </a>
+                    <a class="nav-link" data-page="admin-profile-page">
+                        <i data-lucide="user-circle" class="w-5 h-5"></i>
+                        <span>প্রোফাইল</span>
+                    </a>
+                    <a class="nav-link" data-page="activity-logs-page">
+                        <i data-lucide="activity" class="w-5 h-5"></i>
+                        <span>অ্যাক্টিভিটি লগ</span>
+                    </a>
+                    <a id="admin-logout-btn" class="nav-link mt-4 text-red-400 hover:text-red-300">
+                        <i data-lucide="log-out" class="w-5 h-5"></i>
+                        <span>লগআউট</span>
+                    </a>
+                </nav>
+            </aside>
+
+            <!-- ==================== MAIN CONTENT ==================== -->
+            <main class="main-content">
+
+                <!-- ===== HEADER ===== -->
+                <div class="admin-header flex items-center justify-between gap-4 flex-wrap">
+                    <div>
+                        <h1 id="page-title" class="text-xl font-bold text-white">📊 ড্যাশবোর্ড</h1>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button id="theme-toggle-btn" class="theme-toggle" onclick="toggleTheme()">
+                            <div class="slider"></div>
+                        </button>
+                        <div class="relative">
+                            <button onclick="toggleAdminNotifications()" class="relative p-2 rounded-lg hover:bg-white/5 transition">
+                                <i data-lucide="bell" class="w-5 h-5 text-gray-400"></i>
+                                <span id="admin-notif-dot" class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full hidden"></span>
+                            </button>
+                            <div id="admin-notif-dropdown" class="hidden absolute right-0 top-full mt-2 z-50">
+                                <div class="p-3 border-b border-white/5">
+                                    <h4 class="font-bold text-sm text-white">📬 নোটিফিকেশন</h4>
+                                </div>
+                                <div id="admin-notif-list" class="max-h-64 overflow-y-auto">
+                                    <p class="text-gray-500 text-sm text-center py-4">কোনো নোটিফিকেশন নেই</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold">
+                                <span id="header-admin-initial">A</span>
+                            </div>
+                            <span id="header-admin-name" class="text-sm font-medium text-gray-300 hidden sm:inline">অ্যাডমিন</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========================================================== -->
+                <!-- PAGE: DASHBOARD -->
+                <!-- ========================================================== -->
+                <div id="dashboard-page" class="page active">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
+                        <div class="stat-card">
+                            <div class="icon bg-blue-500/20"><i data-lucide="users" class="w-6 h-6 text-blue-400"></i></div>
+                            <div class="number" id="total-users">0</div>
+                            <div class="label">মোট ইউজার</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon bg-yellow-500/20"><i data-lucide="coins" class="w-6 h-6 text-yellow-400"></i></div>
+                            <div class="number" id="total-coins">0</div>
+                            <div class="label">মোট কয়েন</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon bg-orange-500/20"><i data-lucide="clock" class="w-6 h-6 text-orange-400"></i></div>
+                            <div class="number" id="pending-withdrawals">0</div>
+                            <div class="label">পেন্ডিং উত্তোলন</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon bg-purple-500/20"><i data-lucide="shield-check" class="w-6 h-6 text-purple-400"></i></div>
+                            <div class="number" id="pending-verifications">0</div>
+                            <div class="label">পেন্ডিং ভেরিফিকেশন</div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-3 mt-6">
+                        <button onclick="exportUsers()" class="btn btn-success">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            ইউজার এক্সপোর্ট (CSV)
+                        </button>
+                        <button onclick="exportWithdrawals()" class="btn btn-warning">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            উইথড্রোয়াল এক্সপোর্ট (CSV)
+                        </button>
+                        <button onclick="exportVerifications()" class="btn btn-primary">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            ভেরিফিকেশন এক্সপোর্ট (CSV)
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div class="stat-card">
+                            <h3 class="text-sm font-semibold text-gray-400 mb-3">📈 ডেইলি অ্যাক্টিভ ইউজার</h3>
+                            <div class="number text-blue-400" id="daily-active-users">০</div>
+                            <div class="label">আজকের অ্যাক্টিভ ইউজার</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3 class="text-sm font-semibold text-gray-400 mb-3">💰 আজকের আয়</h3>
+                            <div class="number text-green-400" id="today-revenue">৳০</div>
+                            <div class="label">ভেরিফিকেশন ফি থেকে</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========================================================== -->
+                <!-- PAGE: USERS -->
+                <!-- ========================================================== -->
+                <div id="users-page" class="page">
+                    <div class="flex items-center justify-between mb-6 flex-wrap gap-4 mt-4">
+                        <div>
+                            <h2 class="text-2xl font-black text-white">👥 ইউজার ম্যানেজমেন্ট</h2>
+                            <p class="text-gray-500 text-sm mt-1">সব ইউজারের তথ্য ও কন্ট্রোল</p>
+                        </div>
+                        <span class="text-sm text-gray-400" id="user-count">০ জন</span>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>নাম</th>
+                                    <th>ইমেইল</th>
+                                    <th>কয়েন</th>
+                                    <th>ভেরিফিকেশন</th>
+                                    <th>স্ট্যাটাস</th>
+                                    <th>অ্যাকশন</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body">
+                                <tr><td colspan="6" class="text-center text-gray-500 py-8">লোড হচ্ছে...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ========================================================== -->
+                <!-- PAGE: VERIFICATION -->
+                <!-- ========================================================== -->
+                <div id="verification-page" class="page">
+                    <div class="flex items-center justify-between mb-6 flex-wrap gap-4 mt-4">
+                        <div>
+                            <h2 class="text-2xl font-black text-white">🔐 অ্যাকাউন্ট ভেরিফিকেশন</h2>
+                            <p class="text-gray-500 text-sm mt-1">ইউজারদের ভেরিফিকেশন রিকোয়েস্ট চেক করুন</p>
+                        </div>
+                        <span class="text-sm text-gray-400" id="verification-count">০ টি</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div class="stat-card">
+                            <div class="icon bg-yellow-500/20"><i data-lucide="clock" class="w-6 h-6 text-yellow-400"></i></div>
+                            <div class="number" id="verification-pending">0</div>
+                            <div class="label">পেন্ডিং</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon bg-green-500/20"><i data-lucide="check-circle" class="w-6 h-6 text-green-400"></i></div>
+                            <div class="number" id="verification-approved">0</div>
+                            <div class="label">ভেরিফাইড</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon bg-red-500/20"><i data-lucide="x-circle" class="w-6 h-6 text-red-400"></i></div>
+                            <div class="number" id="verification-rejected">0</div>
+                            <div class="label">বাতিল</div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ইউজার</th>
+                                    <th>মোবাইল</th>
+                                    <th>ট্রানজেকশন আইডি</th>
+                                    <th>মেথড</th>
+                                    <th>স্ক্রিনশট</th>
+                                    <th>তারিখ</th>
+                                    <th>স্ট্যাটাস</th>
+                                    <th>অ্যাকশন</th>
+                                </tr>
+                            </thead>
+                            <tbody id="verification-table-body">
+                                <tr><td colspan="8" class="text-center text-gray-500 py-8">লোড হচ্ছে...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ========================================================== -->
+                <!-- PAGE: WITHDRAWALS -->
+                <!-- ========================================================== -->
+                <div id="withdrawals-page" class="page">
+                    <div class="flex items-center justify-between mb-6 flex-wrap gap-4 mt-4">
+                        <div>
+                            <h2 class="text-2xl font-black text-white">💸 উত্তোলন রিকোয়েস্ট</h2>
+                            <p class="text-gray-500 text-sm mt-1">পেন্ডিং উত্তোলন অনুমোদন বা বাতিল করুন</p>
+                        </div>
+                        <span class="text-sm text-gray-400" id="withdrawal-count">০ টি</span>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ইউজার</th>
+                                    <th>পরিমাণ</th>
+                                    <th>মেথড</th>
+                                    <th>নম্বর</th>
+                                    <th>তারিখ</th>
+                                    <th>স্ট্যাটাস</th>
+                                    <th>অ্যাকশন</th>
+                                </tr>
+                            </thead>
+                            <tbody id="withdrawals-table-body">
+                                <tr><td colspan="7" class="text-center text-gray-500 py-8">লোড হচ্ছে...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ========================================================== -->
+                <!-- PAGE: PROMO CODES (আপডেটেড - জেনারেট বাটন যোগ) -->
+                <!-- ========================================================== -->
+                <div id="promo-page" class="page">
+                    <div class="flex items-center justify-between mb-6 flex-wrap gap-4 mt-4">
+                        <div>
+                            <h2 class="text-2xl font-black text-white">🎫 প্রোমো কোড</h2>
+                            <p class="text-gray-500 text-sm mt-1">নতুন প্রোমো কোড তৈরি ও ম্যানেজ করুন</p>
+                        </div>
+                        <div class="flex gap-3 flex-wrap">
+                            <button onclick="generateDailyPromoCode()" class="btn btn-warning text-lg font-bold">
+                                <i data-lucide="zap" class="w-5 h-5"></i>
+                                🚀 দৈনিক কোড জেনারেট
+                            </button>
+                            <button onclick="openCreatePromo()" class="btn btn-success">
+                                <i data-lucide="plus" class="w-4 h-4"></i>
+                                কাস্টম কোড তৈরি
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- প্রোমো জেনারেট স্ট্যাটাস -->
+                    <div id="promo-gen-status" class="mb-4"></div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div class="stat-card">
+                            <div class="icon bg-green-500/20"><i data-lucide="ticket" class="w-6 h-6 text-green-400"></i></div>
+                            <div class="number" id="total-promo-codes">0</div>
+                            <div class="label">মোট কোড</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon bg-blue-500/20"><i data-lucide="check-circle" class="w-6 h-6 text-blue-400"></i></div>
+                            <div class="number" id="active-promo-codes">0</div>
+                            <div class="label">সক্রিয় কোড</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon bg-purple-500/20"><i data-lucide="users" class="w-6 h-6 text-purple-400"></i></div>
+                            <div class="number" id="total-promo-uses">0</div>
+                            <div class="label">মোট ব্যবহার</div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>কোড</th>
+                                    <th>রিওয়ার্ড</th>
+                                    <th>টাইপ</th>
+                                    <th>ম্যাক্স</th>
+                                    <th>ব্যবহার</th>
+                                    <th>এক্সপাইরি</th>
+                                    <th>স্ট্যাটাস</th>
+                                    <th>অ্যাকশন</th>
+                                </tr>
+                            </thead>
+                            <tbody id="promo-table-body">
+                                <tr><td colspan="8" class="text-center text-gray-500 py-8">লোড হচ্ছে...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ========================================================== -->
+                <!-- PAGE: NOTIFICATIONS -->
+                <!-- ========================================================== -->
+                <div id="notifications-page" class="page">
+                    <div class="flex items-center justify-between mb-6 flex-wrap gap-4 mt-4">
+                        <div>
+                            <h2 class="text-2xl font-black text-white">🔔 নোটিফিকেশন পাঠান</h2>
+                            <p class="text-gray-500 text-sm mt-1">সব ইউজারকে নোটিফিকেশন পাঠান</p>
+                        </div>
+                        <span class="text-xs text-gray-500" id="total-users-count">০ জন ইউজার</span>
+                    </div>
+                    <div class="stat-card max-w-2xl">
+                        <div class="mb-4">
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">শিরোনাম</label>
+                            <input type="text" id="notification-title" placeholder="যেমন: নতুন আপডেট!" class="input-field">
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">মেসেজ</label>
+                            <textarea id="notification-message" rows="4" placeholder="আপনার মেসেজ লিখুন..." class="input-field"></textarea>
+                        </div>
+                        <div class="flex gap-3 flex-wrap">
+                            <button id="send-notification-btn" class="btn btn-primary flex-1 justify-center">
+                                <i data-lucide="send" class="w-4 h-4"></i>
+                                সবাইকে পাঠান
+                            </button>
+                            <button id="send-test-notif-btn" class="btn btn-warning flex-1 justify-center">
+                                <i data-lucide="test-tube" class="w-4 h-4"></i>
+                                টেস্ট (১ জন)
+                            </button>
+                        </div>
+                        <p id="notification-status" class="text-xs text-gray-500 mt-3 text-center"></p>
+                    </div>
+                    
+                    <div class="mt-8">
+                        <h3 class="text-sm font-semibold text-gray-400 mb-4">📨 পাঠানো নোটিফিকেশন</h3>
+                        <div id="sent-notifications-list" class="space-y-3">
+                            <p class="text-gray-500 text-sm text-center py-4">কোনো নোটিফিকেশন পাঠানো হয়নি</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========================================================== -->
+                <!-- PAGE: SETTINGS -->
+                <!-- ========================================================== -->
+                <div id="settings-page" class="page">
+                    <div class="flex items-center justify-between mb-6 flex-wrap gap-4 mt-4">
+                        <div>
+                            <h2 class="text-2xl font-black text-white">⚙️ সেটিংস</h2>
+                            <p class="text-gray-500 text-sm mt-1">অ্যাপের কনফিগারেশন পরিবর্তন করুন</p>
+                        </div>
+                    </div>
+                    <div class="stat-card max-w-2xl space-y-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">ভেরিফিকেশন ফি (টাকা)</label>
+                            <input type="number" id="verification-fee" class="input-field" placeholder="যেমন: ২০">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">সর্বনিম্ন উত্তোলন (কয়েন)</label>
+                            <input type="number" id="min-withdrawal" class="input-field" placeholder="যেমন: ৫০০০">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">দৈনিক অ্যাড লিমিট</label>
+                            <input type="number" id="daily-ad-limit" class="input-field" placeholder="যেমন: ১০">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-300 mb-2">কয়েন</label>
+                                <input type="number" id="coin-value-coins" class="input-field" placeholder="১০০০">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-300 mb-2">টাকা (৳)</label>
+                                <input type="number" id="coin-value-inr" class="input-field" placeholder="১০">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">পেমেন্ট মেথড (কমা দিয়ে)</label>
+                            <input type="text" id="payment-methods" class="input-field" placeholder="বিকাশ, নগদ, রকেট">
+                        </div>
+                        <button id="save-settings-btn" class="btn btn-primary w-full justify-center">সেটিংস সেভ করুন</button>
+                    </div>
+                </div>
+
+                <!-- ========================================================== -->
+                <!-- PAGE: ADMIN PROFILE -->
+                <!-- ========================================================== -->
+                <div id="admin-profile-page" class="page">
+                    <div class="flex items-center justify-between mb-6 flex-wrap gap-4 mt-4">
+                        <div>
+                            <h2 class="text-2xl font-black text-white">👤 অ্যাডমিন প্রোফাইল</h2>
+                            <p class="text-gray-500 text-sm mt-1">আপনার অ্যাকাউন্ট তথ্য ও সেটিংস</p>
+                        </div>
+                    </div>
+                    <div class="stat-card max-w-2xl space-y-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-20 h-20 rounded-full bg-gradient-to-br from-orange-500 to-purple-500 flex items-center justify-center text-3xl font-bold text-white">
+                                <span id="admin-initials">A</span>
+                            </div>
+                            <div>
+                                <h2 id="admin-display-name" class="text-xl font-bold text-white">অ্যাডমিন</h2>
+                                <p id="admin-display-email" class="text-gray-400 text-sm">admin@example.com</p>
+                                <span class="badge badge-active mt-1">✅ অ্যাডমিন</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">নাম পরিবর্তন করুন</label>
+                            <input type="text" id="admin-name-input" class="input-field" placeholder="আপনার নাম">
+                            <button onclick="updateAdminProfile()" class="btn btn-primary w-full mt-2">আপডেট করুন</button>
+                        </div>
+                        <div class="border-t border-white/5 pt-4">
+                            <h3 class="text-sm font-semibold text-gray-400 mb-2">অ্যাকাউন্ট তথ্য</h3>
+                            <p class="text-sm text-gray-500">ইউজার আইডি: <span id="admin-uid-display" class="text-gray-300 font-mono"></span></p>
+                            <p class="text-sm text-gray-500">লগইন: <span id="admin-login-time" class="text-gray-300"></span></p>
+                            <p class="text-sm text-gray-500">মোট অ্যাকশন: <span id="admin-total-actions" class="text-gray-300">০</span></p>
+                            <p class="text-sm text-gray-500">অ্যাডমিন সিন্স: <span id="admin-since" class="text-gray-300">--</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========================================================== -->
+                <!-- PAGE: ACTIVITY LOGS -->
+                <!-- ========================================================== -->
+                <div id="activity-logs-page" class="page">
+                    <div class="flex items-center justify-between mb-6 flex-wrap gap-4 mt-4">
+                        <div>
+                            <h2 class="text-2xl font-black text-white">📋 অ্যাক্টিভিটি লগ</h2>
+                            <p class="text-gray-500 text-sm mt-1">অ্যাডমিনদের করা সকল অ্যাকশনের লগ</p>
+                        </div>
+                        <button onclick="exportActivityLogs()" class="btn btn-success btn-sm">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            এক্সপোর্ট
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>অ্যাডমিন</th>
+                                    <th>অ্যাকশন</th>
+                                    <th>বিস্তারিত</th>
+                                    <th>তারিখ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activity-logs-body">
+                                <tr><td colspan="4" class="text-center text-gray-500 py-8">লোড হচ্ছে...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- 🔔 MODALS -->
+    <!-- ========================================================== -->
+    
+    <!-- Alert Modal -->
+    <div id="custom-alert" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[100] p-4">
+        <div class="bg-[#1a1a2e] rounded-2xl p-6 w-full max-w-sm text-center border border-white/5">
+            <div class="text-4xl mb-3">💬</div>
+            <p id="alert-message" class="mb-4 text-white text-sm"></p>
+            <button id="alert-ok-btn" class="btn btn-primary w-full justify-center">ঠিক আছে</button>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div id="custom-confirm" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[100] p-4">
+        <div class="bg-[#1a1a2e] rounded-2xl p-6 w-full max-w-sm text-center border border-white/5">
+            <div class="text-4xl mb-3">⚠️</div>
+            <p id="confirm-message" class="mb-6 text-white text-sm"></p>
+            <div class="flex gap-3">
+                <button id="confirm-cancel-btn" class="flex-1 btn btn-outline justify-center">বাতিল</button>
+                <button id="confirm-ok-btn" class="flex-1 btn btn-success justify-center">নিশ্চিত</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div id="image-modal" class="hidden image-modal fixed inset-0 flex items-center justify-center z-[200] p-4">
+        <div class="relative">
+            <img id="modal-image" src="" alt="Screenshot Preview">
+            <button onclick="closeImageModal()" class="absolute -top-4 -right-4 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div class="absolute inset-0 -z-10" onclick="closeImageModal()"></div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- 🎫 PROMO CODE MODALS -->
+    <!-- ========================================================== -->
+    
+    <!-- Create Promo Modal -->
+    <div id="create-promo-modal" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[150] p-4">
+        <div class="bg-[#1a1a2e] rounded-2xl p-6 w-full max-w-md border border-white/5 max-h-[90vh] overflow-y-auto">
+            <h3 class="text-xl font-bold text-white text-center mb-4">🎫 নতুন প্রোমো কোড</h3>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="text-sm font-semibold text-gray-300">কোড</label>
+                    <div class="flex gap-2">
+                        <input id="promo-code-input" type="text" class="input-field flex-1 uppercase" placeholder="যেমন: BONUS100" oninput="this.value=this.value.toUpperCase()">
+                        <button onclick="generateRandomPromoCode()" class="btn btn-sm btn-outline flex-shrink-0">জেনারেট</button>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-sm font-semibold text-gray-300">রিওয়ার্ড (কয়েন)</label>
+                    <input id="promo-reward-input" type="number" class="input-field mt-1" placeholder="যেমন: ৫০" min="1">
+                </div>
+                <div>
+                    <label class="text-sm font-semibold text-gray-300">টাইপ</label>
+                    <select id="promo-type-input" class="input-field mt-1" onchange="togglePromoUserField()">
+                        <option value="once">একবার ব্যবহারযোগ্য</option>
+                        <option value="multiple">একাধিক ব্যবহারযোগ্য</option>
+                        <option value="personal">ব্যক্তিগত (নির্দিষ্ট ইউজার)</option>
+                    </select>
+                </div>
+                <div id="promo-user-section" class="hidden">
+                    <label class="text-sm font-semibold text-gray-300">ইউজার আইডি</label>
+                    <input id="promo-user-input" type="text" class="input-field mt-1" placeholder="ইউজার UID">
+                    <p class="text-xs text-gray-500 mt-1">ব্যক্তিগত টাইপে ইউজার আইডি দিতে হবে</p>
+                </div>
+                <div>
+                    <label class="text-sm font-semibold text-gray-300">সর্বোচ্চ ব্যবহার</label>
+                    <input id="promo-max-use-input" type="number" class="input-field mt-1" placeholder="যেমন: ১" value="1" min="1">
+                </div>
+                <div>
+                    <label class="text-sm font-semibold text-gray-300">এক্সপাইরি তারিখ</label>
+                    <input id="promo-expiry-input" type="date" class="input-field mt-1">
+                </div>
+                <div class="flex items-center gap-3">
+                    <input type="checkbox" id="promo-active-input" checked class="w-4 h-4 accent-green-500">
+                    <label class="text-sm font-semibold text-gray-300">সক্রিয়</label>
+                </div>
+            </div>
+            
+            <div class="flex gap-3 mt-6">
+                <button onclick="savePromoCode()" class="btn btn-success flex-1 justify-center">সেভ করুন</button>
+                <button onclick="closeCreatePromo()" class="btn btn-outline flex-1 justify-center">বাতিল</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Promo Modal -->
+    <div id="edit-promo-modal" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[150] p-4">
+        <div class="bg-[#1a1a2e] rounded-2xl p-6 w-full max-w-md border border-white/5">
+            <h3 class="text-xl font-bold text-white text-center mb-4">✏️ প্রোমো কোড এডিট</h3>
+            <input id="edit-promo-id" type="hidden">
+            <div class="space-y-4">
+                <div>
+                    <label class="text-sm font-semibold text-gray-300">কোড</label>
+                    <input id="edit-promo-code" type="text" class="input-field mt-1 uppercase" readonly>
+                </div>
+                <div>
+                    <label class="text-sm font-semibold text-gray-300">রিওয়ার্ড (কয়েন)</label>
+                    <input id="edit-promo-reward" type="number" class="input-field mt-1" min="1">
+                </div>
+                <div>
+                    <label class="text-sm font-semibold text-gray-300">টাইপ</label>
+                    <select id="edit-promo-type" class="input-field mt-1">
+                        <option value="once">একবার ব্যবহারযোগ্য</option>
+                        <option value="multiple">একাধিক ব্যবহারযোগ্য</option>
+                        <option value="personal">ব্যক্তিগত</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-sm font-semibold text-gray-300">সর্বোচ্চ ব্যবহার</label>
+                    <input id="edit-promo-max-use" type="number" class="input-field mt-1" min="1">
+                </div>
+                <div>
+                    <label class="text-sm font-semibold text-gray-300">এক্সপাইরি</label>
+                    <input id="edit-promo-expiry" type="date" class="input-field mt-1">
+                </div>
+                <div class="flex items-center gap-3">
+                    <input type="checkbox" id="edit-promo-active" class="w-4 h-4 accent-green-500">
+                    <label class="text-sm font-semibold text-gray-300">সক্রিয়</label>
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="updatePromoCode()" class="btn btn-primary flex-1 justify-center">আপডেট করুন</button>
+                <button onclick="closeEditPromo()" class="btn btn-outline flex-1 justify-center">বাতিল</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- 🔥 JAVASCRIPT -->
+    <!-- ========================================================== -->
+    <script type="module">
+        // ============================================================
+        // 🔥 FIREBASE CONFIG
+        // ============================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDF09tceue04D-R2f0Uyd6a92-Cbzu1nC4",
+            authDomain: "reward-income-d6db6.firebaseapp.com",
+            databaseURL: "https://reward-income-d6db6-default-rtdb.firebaseio.com",
+            projectId: "reward-income-d6db6",
+            storageBucket: "reward-income-d6db6.firebasestorage.app",
+            messagingSenderId: "104603998083",
+            appId: "1:104603998083:web:010e68d5d7873a492d08b6",
+            measurementId: "G-73C1DK6GLT"
+        };
+        
+        const ADMIN_UIDS = ["UHW0799y2YYbToQiAgf8UyzXmrp2"];
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            doc, 
+            getDoc, 
+            getDocs,
+            setDoc, 
+            updateDoc, 
+            query, 
+            where, 
+            onSnapshot, 
+            addDoc, 
+            serverTimestamp,
+            orderBy,
+            writeBatch,
+            deleteDoc,
+            limit,
+            runTransaction
+        } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+        import { getStorage, ref, deleteObject } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        // ============================================================
+        // 🎯 GLOBALS
+        // ============================================================
+        const loginView = document.getElementById('admin-login-view');
+        const dashboardView = document.getElementById('admin-dashboard');
+        let currentUser = null;
+        let currentTheme = 'dark';
+
+        // ============================================================
+        // 🚀 INIT
+        // ============================================================
+        window.onload = () => {
+            lucide.createIcons();
+            setupEventListeners();
+            
+            const savedTheme = localStorage.getItem('admin_theme') || 'dark';
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-mode');
+                document.getElementById('theme-toggle-btn').classList.add('light');
+                currentTheme = 'light';
+            }
+            
+            onAuthStateChanged(auth, (user) => {
+                if (user && ADMIN_UIDS.includes(user.uid)) {
+                    currentUser = user;
+                    loginView.style.display = 'none';
+                    dashboardView.style.display = 'block';
+                    navigateTo('dashboard-page');
+                    loadDashboardData();
+                    loadUsers();
+                    loadVerificationRequests();
+                    loadWithdrawals();
+                    loadPromoCodes();
+                    loadSettings();
+                    loadSentNotifications();
+                    updateUserCount();
+                    loadAdminProfile();
+                    listenAdminNotifications();
+                    loadActivityLogs();
+                    loadDailyStats();
+                } else {
+                    loginView.style.display = 'flex';
+                    dashboardView.style.display = 'none';
+                    if (user) {
+                        signOut(auth);
+                        showAlert("আপনি এই প্যানেল অ্যাক্সেস করার অনুমতি পাবেন না।");
+                    }
+                }
+            });
+        };
+
+        // ============================================================
+        // 🎯 NAVIGATION
+        // ============================================================
+        function navigateTo(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            const target = document.getElementById(pageId);
+            if (target) target.classList.add('active');
+            
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.dataset.page === pageId) link.classList.add('active');
+            });
+            
+            const titles = {
+                'dashboard-page': '📊 ড্যাশবোর্ড',
+                'users-page': '👥 ইউজার ম্যানেজমেন্ট',
+                'verification-page': '🔐 অ্যাকাউন্ট ভেরিফিকেশন',
+                'withdrawals-page': '💸 উত্তোলন রিকোয়েস্ট',
+                'promo-page': '🎫 প্রোমো কোড',
+                'notifications-page': '🔔 নোটিফিকেশন পাঠান',
+                'settings-page': '⚙️ সেটিংস',
+                'admin-profile-page': '👤 অ্যাডমিন প্রোফাইল',
+                'activity-logs-page': '📋 অ্যাক্টিভিটি লগ'
+            };
+            document.getElementById('page-title').textContent = titles[pageId] || pageId;
+            
+            if (pageId === 'verification-page') loadVerificationRequests();
+            if (pageId === 'withdrawals-page') loadWithdrawals();
+            if (pageId === 'users-page') loadUsers();
+            if (pageId === 'promo-page') loadPromoCodes();
+            if (pageId === 'notifications-page') { loadSentNotifications(); updateUserCount(); }
+            if (pageId === 'activity-logs-page') loadActivityLogs();
+            if (pageId === 'dashboard-page') loadDailyStats();
+        }
+
+        // ============================================================
+        // 🎯 EVENT LISTENERS
+        // ============================================================
+        function setupEventListeners() {
+            document.getElementById('admin-login-btn').addEventListener('click', handleAdminLogin);
+            document.getElementById('admin-logout-btn').addEventListener('click', () => {
+                signOut(auth);
+                showAlert("লগআউট সফল!");
+            });
+            document.getElementById('save-settings-btn').addEventListener('click', saveSettings);
+            document.getElementById('send-notification-btn').addEventListener('click', sendNotification);
+            document.getElementById('send-test-notif-btn').addEventListener('click', sendTestNotification);
+            
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => { 
+                    e.preventDefault(); 
+                    if (link.id === 'admin-logout-btn') return;
+                    navigateTo(link.dataset.page); 
+                });
+            });
+            
+            document.getElementById('admin-password').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') handleAdminLogin();
+            });
+        }
+
+        // ============================================================
+        // 🔐 AUTH
+        // ============================================================
+        async function handleAdminLogin() {
+            const email = document.getElementById('admin-email').value;
+            const password = document.getElementById('admin-password').value;
+            
+            if (!email || !password) {
+                return showAlert("দয়া করে ইমেইল ও পাসওয়ার্ড দিন।");
+            }
+            
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                if (!ADMIN_UIDS.includes(userCredential.user.uid)) {
+                    await signOut(auth);
+                    showAlert("আপনি এই প্যানেল অ্যাক্সেস করার অনুমতি পাবেন না।");
+                }
+            } catch (error) {
+                showAlert("লগইন ব্যর্থ: " + error.message);
+            }
+        }
+
+        // ============================================================
+        // 🌓 THEME TOGGLE
+        // ============================================================
+        window.toggleTheme = function() {
+            const btn = document.getElementById('theme-toggle-btn');
+            if (currentTheme === 'dark') {
+                document.body.classList.add('light-mode');
+                btn.classList.add('light');
+                currentTheme = 'light';
+                localStorage.setItem('admin_theme', 'light');
+            } else {
+                document.body.classList.remove('light-mode');
+                btn.classList.remove('light');
+                currentTheme = 'dark';
+                localStorage.setItem('admin_theme', 'dark');
+            }
+            lucide.createIcons();
+        };
+
+        // ============================================================
+        // 📊 DASHBOARD
+        // ============================================================
+        function loadDashboardData() {
+            onSnapshot(collection(db, "users"), (snap) => {
+                document.getElementById('total-users').textContent = snap.size;
+            });
+
+            onSnapshot(collection(db, "users"), (snap) => {
+                let total = 0;
+                snap.forEach(doc => {
+                    total += doc.data().balance || 0;
+                });
+                document.getElementById('total-coins').textContent = total.toLocaleString();
+            });
+
+            onSnapshot(query(collection(db, "withdrawals"), where("status", "==", "pending")), (snap) => {
+                document.getElementById('pending-withdrawals').textContent = snap.size;
+            });
+
+            onSnapshot(query(collection(db, "verification_request"), where("status", "==", "pending")), (snap) => {
+                document.getElementById('pending-verifications').textContent = snap.size;
+            });
+        }
+
+        async function loadDailyStats() {
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const userSnap = await getDocs(collection(db, "users"));
+                let activeUsers = 0;
+                userSnap.forEach(doc => {
+                    const data = doc.data();
+                    const lastActive = data.lastActiveDate || data.createdAt?.toDate?.()?.toISOString?.()?.split('T')[0];
+                    if (lastActive === today) activeUsers++;
+                });
+                document.getElementById('daily-active-users').textContent = activeUsers;
+                
+                const verifSnap = await getDocs(collection(db, "verification_request"));
+                let revenue = 0;
+                verifSnap.forEach(doc => {
+                    const data = doc.data();
+                    if (data.status === 'approved') {
+                        const date = data.verifiedAt?.toDate?.() || data.submittedAt?.toDate?.();
+                        if (date && date.toISOString().split('T')[0] === today) {
+                            revenue += 50;
+                        }
+                    }
+                });
+                document.getElementById('today-revenue').textContent = '৳' + revenue;
+            } catch (error) {
+                console.log("Daily stats error:", error);
+            }
+        }
+
+        // ============================================================
+        // 👥 USERS
+        // ============================================================
+        function loadUsers() {
+            const usersTableBody = document.getElementById('users-table-body');
+            onSnapshot(collection(db, "users"), (snapshot) => {
+                if (snapshot.empty) {
+                    usersTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-500 py-8">কোনো ইউজার নেই</td></tr>';
+                    document.getElementById('user-count').textContent = '০ জন';
+                    return;
+                }
+                
+                usersTableBody.innerHTML = '';
+                document.getElementById('user-count').textContent = snapshot.size + ' জন';
+                
+                snapshot.forEach(doc => {
+                    const user = doc.data();
+                    const isBlocked = user.isBlocked || false;
+                    const isVerified = user.isVerified || false;
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="font-medium">${user.name || 'N/A'}</td>
+                        <td class="text-gray-400">${user.email || 'N/A'}</td>
+                        <td class="text-yellow-400 font-bold">${user.balance || 0}</td>
+                        <td><span class="badge ${isVerified ? 'badge-verified' : 'badge-unverified'}">${isVerified ? '✅ ভেরিফাইড' : '❌ আনভেরিফাইড'}</span></td>
+                        <td><span class="badge ${isBlocked ? 'badge-blocked' : 'badge-active'}">${isBlocked ? 'ব্লক' : 'সক্রিয়'}</span></td>
+                        <td>
+                            <button class="btn ${isBlocked ? 'btn-success' : 'btn-danger'} btn-sm" 
+                                    onclick="window.toggleBlockUser('${doc.id}', ${isBlocked})">
+                                ${isBlocked ? 'আনব্লক' : 'ব্লক'}
+                            </button>
+                        </td>
+                    `;
+                    usersTableBody.appendChild(row);
+                });
+            });
+        }
+
+        window.toggleBlockUser = (userId, isBlocked) => {
+            const action = isBlocked ? 'আনব্লক' : 'ব্লক';
+            showConfirm(`আপনি কি এই ইউজারকে ${action} করতে চান?`, async () => {
+                const userRef = doc(db, "users", userId);
+                try {
+                    await updateDoc(userRef, { isBlocked: !isBlocked });
+                    const actionType = isBlocked ? 'unblock_user' : 'block_user';
+                    const details = `${isBlocked ? 'আনব্লক' : 'ব্লক'} করেছেন: ${userId}`;
+                    await logAdminAction(actionType, details);
+                    showAlert(`✅ ইউজার সফলভাবে ${action} করা হয়েছে!`);
+                } catch (error) {
+                    showAlert(`❌ ত্রুটি: ${error.message}`);
+                }
+            });
+        };
+
+        // ============================================================
+        // 🔐 VERIFICATION
+        // ============================================================
+        function loadVerificationRequests() {
+            const tableBody = document.getElementById('verification-table-body');
+            const q = query(collection(db, "verification_request"), orderBy("submittedAt", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
+                if (snapshot.empty) {
+                    tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-gray-500 py-8">কোনো ভেরিফিকেশন রিকোয়েস্ট নেই</td></tr>';
+                    document.getElementById('verification-count').textContent = '০ টি';
+                    return;
+                }
+                
+                let pending = 0, approved = 0, rejected = 0;
+                snapshot.forEach(doc => {
+                    const status = doc.data().status || 'pending';
+                    if (status === 'pending') pending++;
+                    else if (status === 'approved') approved++;
+                    else if (status === 'rejected') rejected++;
+                });
+                document.getElementById('verification-pending').textContent = pending;
+                document.getElementById('verification-approved').textContent = approved;
+                document.getElementById('verification-rejected').textContent = rejected;
+                document.getElementById('verification-count').textContent = snapshot.size + ' টি';
+                
+                tableBody.innerHTML = '';
+                
+                snapshot.forEach(docSnap => {
+                    const req = docSnap.data();
+                    const submittedDate = req.submittedAt?.toDate?.() || new Date();
+                    const status = req.status || 'pending';
+                    
+                    let statusBadge = '';
+                    if (status === 'pending') statusBadge = '<span class="badge badge-pending">⏳ পেন্ডিং</span>';
+                    else if (status === 'approved') statusBadge = '<span class="badge badge-approved">✅ ভেরিফাইড</span>';
+                    else if (status === 'rejected') statusBadge = '<span class="badge badge-rejected">❌ বাতিল</span>';
+                    
+                    let screenshotHtml = '';
+                    if (req.screenshotUrl) {
+                        screenshotHtml = `
+                            <img src="${req.screenshotUrl}" 
+                                 class="screenshot-thumb" 
+                                 onclick="window.viewImage('${req.screenshotUrl}')"
+                                 alt="Screenshot">
+                        `;
+                    } else {
+                        screenshotHtml = '<span class="text-xs text-gray-500">নেই</span>';
+                    }
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="font-medium">${req.userName || 'N/A'}</td>
+                        <td class="text-gray-400">${req.mobileNumber || 'N/A'}</td>
+                        <td class="text-sm text-yellow-400 font-mono">${req.transactionId || 'N/A'}</td>
+                        <td><span class="badge badge-pending">${req.method || 'N/A'}</span></td>
+                        <td>${screenshotHtml}</td>
+                        <td class="text-gray-400 text-sm">${submittedDate.toLocaleDateString('bn-BD')} ${submittedDate.toLocaleTimeString('bn-BD', {hour:'2-digit',minute:'2-digit'})}</td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            ${status === 'pending' ? `
+                                <div class="flex gap-2 flex-wrap">
+                                    <button class="btn btn-success btn-sm" onclick="window.verifyUser('${docSnap.id}')">✅ ভেরিফাই</button>
+                                    <button class="btn btn-danger btn-sm" onclick="window.rejectVerification('${docSnap.id}')">❌</button>
+                                </div>
+                            ` : `
+                                <span class="text-xs text-gray-500">${status === 'approved' ? '✅ সম্পন্ন' : '❌ বাতিল'}</span>
+                            `}
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            });
+        }
+
+        window.viewImage = function(url) {
+            const modal = document.getElementById('image-modal');
+            const img = document.getElementById('modal-image');
+            img.src = url;
+            modal.classList.remove('hidden');
+            lucide.createIcons();
+        };
+
+        window.closeImageModal = function() {
+            document.getElementById('image-modal').classList.add('hidden');
+        };
+
+        window.verifyUser = async (requestId) => {
+            showConfirm(`এই ইউজারকে ভেরিফাই করতে চান?`, async () => {
+                const requestRef = doc(db, "verification_request", requestId);
+                try {
+                    await runTransaction(db, async (transaction) => {
+                        const requestSnap = await transaction.get(requestRef);
+                        if (!requestSnap.exists()) throw new Error("রিকোয়েস্ট পাওয়া যায়নি!");
+                        
+                        const requestData = requestSnap.data();
+                        transaction.update(requestRef, { 
+                            status: 'approved',
+                            verifiedAt: serverTimestamp(),
+                            verifiedBy: currentUser?.uid || 'admin'
+                        });
+                        
+                        const userRef = doc(db, "users", requestData.userId);
+                        transaction.update(userRef, { isVerified: true });
+                        
+                        const notifRef = doc(collection(db, "notifications"));
+                        transaction.set(notifRef, {
+                            userId: requestData.userId,
+                            title: "🎉 অ্যাকাউন্ট ভেরিফাইড!",
+                            message: "আপনার অ্যাকাউন্ট সফলভাবে ভেরিফাই করা হয়েছে। আপনি এখন টাকা উত্তোলন করতে পারবেন!",
+                            read: false,
+                            createdAt: serverTimestamp()
+                        });
+                    });
+                    
+                    await logAdminAction('verify_user', `ভেরিফাই করেছেন: ${requestId}`);
+                    showAlert("✅ ইউজার ভেরিফাইড হয়েছে!");
+                } catch (error) {
+                    showAlert("❌ " + error.message);
+                }
+            });
+        };
+
+        window.rejectVerification = async (requestId) => {
+            showConfirm(`আপনি কি এই ভেরিফিকেশন বাতিল করতে চান?`, async () => {
+                const requestRef = doc(db, "verification_request", requestId);
+                try {
+                    const requestSnap = await getDoc(requestRef);
+                    if (requestSnap.exists()) {
+                        const reqData = requestSnap.data();
+                        if (reqData.screenshotUrl) {
+                            try {
+                                const path = reqData.screenshotUrl.split('?')[0].split('/o/')[1];
+                                if (path) {
+                                    const storageRef = ref(storage, decodeURIComponent(path));
+                                    await deleteObject(storageRef);
+                                }
+                            } catch (e) {
+                                console.log("Screenshot delete error:", e);
+                            }
+                        }
+                    }
+                    
+                    await updateDoc(requestRef, { 
+                        status: 'rejected',
+                        rejectedAt: serverTimestamp(),
+                        rejectedBy: currentUser?.uid || 'admin'
+                    });
+                    
+                    await logAdminAction('reject_verification', `বাতিল করেছেন: ${requestId}`);
+                    showAlert("❌ ভেরিফিকেশন বাতিল করা হয়েছে!");
+                } catch (error) {
+                    showAlert("❌ " + error.message);
+                }
+            });
+        };
+
+        // ============================================================
+        // 💸 WITHDRAWALS
+        // ============================================================
+        function loadWithdrawals() {
+            const withdrawalsTableBody = document.getElementById('withdrawals-table-body');
+            const q = query(collection(db, "withdrawals"), orderBy("requestedAt", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
+                if (snapshot.empty) {
+                    withdrawalsTableBody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-500 py-8">কোনো উত্তোলন রিকোয়েস্ট নেই</td></tr>';
+                    document.getElementById('withdrawal-count').textContent = '০ টি';
+                    return;
+                }
+                
+                withdrawalsTableBody.innerHTML = '';
+                document.getElementById('withdrawal-count').textContent = snapshot.size + ' টি';
+                
+                snapshot.forEach(docSnap => {
+                    const request = docSnap.data();
+                    const requestedDate = request.requestedAt?.toDate?.() || new Date();
+                    const status = request.status || 'pending';
+                    
+                    let statusBadge = '';
+                    if (status === 'pending') statusBadge = '<span class="badge badge-pending">⏳ পেন্ডিং</span>';
+                    else if (status === 'approved') statusBadge = '<span class="badge badge-approved">✅ অনুমোদিত</span>';
+                    else if (status === 'rejected') statusBadge = '<span class="badge badge-rejected">❌ বাতিল</span>';
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="font-medium">${request.userName || 'N/A'}</td>
+                        <td class="text-yellow-400 font-bold">${request.amount} কয়েন</td>
+                        <td><span class="badge badge-pending">${request.method || 'N/A'}</span></td>
+                        <td class="text-gray-400">${request.paymentDetail || 'N/A'}</td>
+                        <td class="text-gray-400 text-sm">${requestedDate.toLocaleDateString('bn-BD')}</td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            ${status === 'pending' ? `
+                                <div class="space-x-2">
+                                    <button class="btn btn-success btn-sm" onclick="window.handleWithdrawal('${docSnap.id}', 'approved')">✅</button>
+                                    <button class="btn btn-danger btn-sm" onclick="window.handleWithdrawal('${docSnap.id}', 'rejected')">❌</button>
+                                </div>
+                            ` : `
+                                <span class="text-xs text-gray-500">${status === 'approved' ? '✅ সম্পন্ন' : '❌ বাতিল'}</span>
+                            `}
+                        </td>
+                    `;
+                    withdrawalsTableBody.appendChild(row);
+                });
+            });
+        }
+
+        window.handleWithdrawal = (requestId, newStatus) => {
+            const statusText = newStatus === 'approved' ? 'অনুমোদন' : 'বাতিল';
+            showConfirm(`আপনি কি এই উত্তোলন ${statusText} করতে চান?`, async () => {
+                const requestRef = doc(db, "withdrawals", requestId);
+                try {
+                    await runTransaction(db, async (transaction) => {
+                        const requestSnap = await transaction.get(requestRef);
+                        if (!requestSnap.exists()) throw new Error("রিকোয়েস্ট পাওয়া যায়নি!");
+                        
+                        const requestData = requestSnap.data();
+                        const userRef = doc(db, "users", requestData.userId);
+                        const userSnap = await transaction.get(userRef);
+                        
+                        if (!userSnap.exists()) throw new Error("ইউজার পাওয়া যায়নি!");
+                        
+                        const currentBalance = userSnap.data().balance || 0;
+                        
+                        if (newStatus === 'approved') {
+                            if (currentBalance < requestData.amount) {
+                                throw new Error("ব্যালেন্স কম!");
+                            }
+                            transaction.update(userRef, { balance: currentBalance - requestData.amount });
+                            transaction.update(requestRef, { status: 'approved' });
+                        } else {
+                            transaction.update(userRef, { balance: currentBalance + requestData.amount });
+                            transaction.update(requestRef, { status: 'rejected' });
+                        }
+                    });
+                    
+                    const actionType = newStatus === 'approved' ? 'approve_withdrawal' : 'reject_withdrawal';
+                    await logAdminAction(actionType, `${statusText} করেছেন: ${requestId}`);
+                    showAlert(`✅ উত্তোলন ${statusText} করা হয়েছে!`);
+                } catch (error) {
+                    showAlert("❌ " + error.message);
+                }
+            });
+        };
+
+        // ============================================================
+        // 🎫 PROMO CODES
+        // ============================================================
+        function loadPromoCodes() {
+            const tableBody = document.getElementById('promo-table-body');
+            const q = query(collection(db, "promo_codes"), orderBy("createdAt", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
+                if (snapshot.empty) {
+                    tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-gray-500 py-8">কোনো প্রোমো কোড নেই</td></tr>';
+                    document.getElementById('total-promo-codes').textContent = '0';
+                    document.getElementById('active-promo-codes').textContent = '0';
+                    document.getElementById('total-promo-uses').textContent = '0';
+                    return;
+                }
+                
+                let totalUses = 0;
+                let activeCount = 0;
+                tableBody.innerHTML = '';
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    totalUses += (data.usedCount || 0);
+                    if (data.isActive !== false) activeCount++;
+                    
+                    const isExpired = data.expiresAt && new Date(data.expiresAt) < new Date();
+                    const status = data.isActive === false ? 'নিষ্ক্রিয়' : 
+                                  (isExpired ? 'মেয়াদোত্তীর্ণ' : '✅ সক্রিয়');
+                    const statusClass = data.isActive === false ? 'badge-blocked' : 
+                                       (isExpired ? 'badge-expired' : 'badge-active');
+                    
+                    const typeLabels = {
+                        'once': 'একবার',
+                        'multiple': 'একাধিক',
+                        'personal': 'ব্যক্তিগত'
+                    };
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="font-bold text-yellow-400 font-mono">${data.code}</td>
+                        <td class="text-green-400 font-bold">+${data.reward}</td>
+                        <td><span class="badge badge-pending">${typeLabels[data.type] || data.type}</span></td>
+                        <td>${data.maxUse || 1}</td>
+                        <td>${data.usedCount || 0}</td>
+                        <td class="text-gray-400 text-sm">${data.expiresAt || 'কখনো না'}</td>
+                        <td><span class="badge ${statusClass}">${status}</span></td>
+                        <td>
+                            <div class="flex gap-2">
+                                <button class="btn btn-primary btn-sm" onclick="window.editPromoCode('${doc.id}')">
+                                    <i data-lucide="edit" class="w-3 h-3"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="window.deletePromoCode('${doc.id}')">
+                                    <i data-lucide="trash" class="w-3 h-3"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+                
+                document.getElementById('total-promo-codes').textContent = snapshot.size;
+                document.getElementById('active-promo-codes').textContent = activeCount;
+                document.getElementById('total-promo-uses').textContent = totalUses;
+                lucide.createIcons();
+            });
+        }
+
+        // 🚀 দৈনিক প্রোমো কোড জেনারেটর (অ্যাডমিন প্যানেল)
+        window.generateDailyPromoCode = async function() {
+            const statusDiv = document.getElementById('promo-gen-status');
+            const today = new Date();
+            const dateStr = today.toISOString().split('T')[0].replace(/-/g, '');
+            const code = `RN${dateStr}`;
+            
+            // লোডিং স্ট্যাটাস
+            statusDiv.innerHTML = `
+                <div class="loading-box">
+                    <p class="text-blue-400 font-medium">⏳ কোড জেনারেট হচ্ছে...</p>
+                </div>
+            `;
+            
+            try {
+                // ✅ চেক: আজকের কোড ইতিমধ্যে আছে?
+                const q = query(
+                    collection(db, "promo_codes"),
+                    where("code", "==", code)
+                );
+                const snapshot = await getDocs(q);
+                
+                if (!snapshot.empty) {
+                    statusDiv.innerHTML = `
+                        <div class="error-box">
+                            <p class="text-yellow-400 font-medium">⚠️ আজকের কোড ইতিমধ্যে তৈরি করা হয়েছে!</p>
+                            <p class="text-sm text-gray-400 mt-1">কোড: <span class="font-mono font-bold text-white">${code}</span></p>
+                        </div>
+                    `;
+                    // অটো হাইড
+                    setTimeout(() => { statusDiv.innerHTML = ''; }, 5000);
+                    return;
+                }
+                
+                // ✅ এক্সপাইরি টাইম সেট করুন (আজ রাত ১২টা)
+                const expiryDate = new Date(today);
+                expiryDate.setHours(23, 59, 59, 999);
+                
+                // ✅ নতুন কোড তৈরি করুন
+                await addDoc(collection(db, "promo_codes"), {
+                    code: code,
+                    reward: 100,
+                    type: 'daily',
+                    maxUse: 999999,
+                    usedCount: 0,
+                    isActive: true,
+                    isDaily: true,
+                    dailyDate: today.toISOString().split('T')[0],
+                    expiresAt: expiryDate.toISOString(),
+                    createdAt: serverTimestamp(),
+                    generatedBy: currentUser?.uid || 'admin',
+                    generatedByName: localStorage.getItem('admin_name') || 'অ্যাডমিন'
+                });
+                
+                // ✅ অ্যাক্টিভিটি লগ
+                await logAdminAction('create_promo', `দৈনিক প্রোমো কোড তৈরি করেছেন: ${code}`);
+                
+                // ✅ সাকসেস মেসেজ
+                statusDiv.innerHTML = `
+                    <div class="success-box">
+                        <p class="text-green-400 font-bold text-lg">✅ নতুন দৈনিক কোড তৈরি হয়েছে!</p>
+                        <p class="text-3xl font-mono font-bold text-yellow-400 my-2">${code}</p>
+                        <p class="text-xs text-gray-400">⏰ মেয়াদ: আজ রাত ১২:০০ পর্যন্ত</p>
+                        <p class="text-xs text-gray-500 mt-1">ইউজাররা এই কোড সাবমিট করে ১০০ কয়েন পাবে</p>
+                    </div>
+                `;
+                
+                // ✅ টেবিল রিফ্রেশ
+                loadPromoCodes();
+                
+                // ✅ অটো হাইড (৮ সেকেন্ড পর)
+                setTimeout(() => {
+                    statusDiv.innerHTML = '';
+                }, 8000);
+                
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <div class="error-box">
+                        <p class="text-red-400 font-medium">❌ কোড জেনারেট করতে সমস্যা: ${error.message}</p>
+                    </div>
+                `;
+                setTimeout(() => { statusDiv.innerHTML = ''; }, 5000);
+            }
+        };
+
+        // র‍্যান্ডম প্রোমো কোড জেনারেট
+        window.generateRandomPromoCode = function() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 8; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.getElementById('promo-code-input').value = code;
+        };
+
+        // প্রোমো টাইপ পরিবর্তনে ইউজার সেকশন দেখানো
+        window.togglePromoUserField = function() {
+            const type = document.getElementById('promo-type-input').value;
+            const userSection = document.getElementById('promo-user-section');
+            if (type === 'personal') {
+                userSection.classList.remove('hidden');
+            } else {
+                userSection.classList.add('hidden');
+            }
+        };
+
+        // প্রোমো কোড তৈরি পপআপ খোলা
+        window.openCreatePromo = function() {
+            document.getElementById('create-promo-modal').classList.remove('hidden');
+            document.getElementById('promo-code-input').value = '';
+            document.getElementById('promo-reward-input').value = '';
+            document.getElementById('promo-type-input').value = 'once';
+            document.getElementById('promo-max-use-input').value = '1';
+            document.getElementById('promo-expiry-input').value = '';
+            document.getElementById('promo-active-input').checked = true;
+            document.getElementById('promo-user-section').classList.add('hidden');
+            document.getElementById('promo-user-input').value = '';
+        };
+
+        window.closeCreatePromo = function() {
+            document.getElementById('create-promo-modal').classList.add('hidden');
+        };
+
+        // প্রোমো কোড সেভ
+        window.savePromoCode = async function() {
+            const code = document.getElementById('promo-code-input').value.trim().toUpperCase();
+            const reward = parseInt(document.getElementById('promo-reward-input').value);
+            const type = document.getElementById('promo-type-input').value;
+            const maxUse = parseInt(document.getElementById('promo-max-use-input').value) || 1;
+            const expiresAt = document.getElementById('promo-expiry-input').value;
+            const isActive = document.getElementById('promo-active-input').checked;
+            const userId = document.getElementById('promo-user-input').value.trim();
+            
+            if (!code) return showAlert("কোড লিখুন!");
+            if (!reward || reward <= 0) return showAlert("সঠিক রিওয়ার্ড দিন!");
+            if (type === 'personal' && !userId) return showAlert("ব্যক্তিগত টাইপে ইউজার আইডি দিন!");
+            
+            // চেক করুন কোড ইতিমধ্যে আছে কিনা
+            const q = query(collection(db, "promo_codes"), where("code", "==", code));
+            const snap = await getDocs(q);
+            if (!snap.empty) return showAlert("এই কোড ইতিমধ্যে আছে!");
+            
+            try {
+                await addDoc(collection(db, "promo_codes"), {
+                    code: code,
+                    reward: reward,
+                    type: type,
+                    userId: type === 'personal' ? userId : null,
+                    maxUse: maxUse,
+                    usedCount: 0,
+                    expiresAt: expiresAt || null,
+                    isActive: isActive,
+                    createdAt: serverTimestamp()
+                });
+                await logAdminAction('create_promo', `প্রোমো কোড তৈরি করেছেন: ${code}`);
+                showAlert("✅ প্রোমো কোড তৈরি হয়েছে!");
+                closeCreatePromo();
+                loadPromoCodes();
+            } catch (error) {
+                showAlert("❌ " + error.message);
+            }
+        };
+
+        // প্রোমো কোড এডিট
+        window.editPromoCode = async function(docId) {
+            const docRef = doc(db, "promo_codes", docId);
+            const snap = await getDoc(docRef);
+            if (!snap.exists()) return showAlert("কোড পাওয়া যায়নি!");
+            
+            const data = snap.data();
+            document.getElementById('edit-promo-id').value = docId;
+            document.getElementById('edit-promo-code').value = data.code;
+            document.getElementById('edit-promo-reward').value = data.reward;
+            document.getElementById('edit-promo-type').value = data.type;
+            document.getElementById('edit-promo-max-use').value = data.maxUse || 1;
+            document.getElementById('edit-promo-expiry').value = data.expiresAt || '';
+            document.getElementById('edit-promo-active').checked = data.isActive !== false;
+            
+            document.getElementById('edit-promo-modal').classList.remove('hidden');
+        };
+
+        window.closeEditPromo = function() {
+            document.getElementById('edit-promo-modal').classList.add('hidden');
+        };
+
+        // প্রোমো কোড আপডেট
+        window.updatePromoCode = async function() {
+            const docId = document.getElementById('edit-promo-id').value;
+            const reward = parseInt(document.getElementById('edit-promo-reward').value);
+            const type = document.getElementById('edit-promo-type').value;
+            const maxUse = parseInt(document.getElementById('edit-promo-max-use').value) || 1;
+            const expiresAt = document.getElementById('edit-promo-expiry').value;
+            const isActive = document.getElementById('edit-promo-active').checked;
+            
+            if (!reward || reward <= 0) return showAlert("সঠিক রিওয়ার্ড দিন!");
+            
+            try {
+                await updateDoc(doc(db, "promo_codes", docId), {
+                    reward: reward,
+                    type: type,
+                    maxUse: maxUse,
+                    expiresAt: expiresAt || null,
+                    isActive: isActive,
+                    updatedAt: serverTimestamp()
+                });
+                await logAdminAction('update_promo', `প্রোমো কোড আপডেট করেছেন: ${document.getElementById('edit-promo-code').value}`);
+                showAlert("✅ প্রোমো কোড আপডেট করা হয়েছে!");
+                closeEditPromo();
+                loadPromoCodes();
+            } catch (error) {
+                showAlert("❌ " + error.message);
+            }
+        };
+
+        // প্রোমো কোড ডিলিট
+        window.deletePromoCode = function(docId) {
+            showConfirm("আপনি কি এই প্রোমো কোড ডিলিট করতে চান?", async () => {
+                try {
+                    const docRef = doc(db, "promo_codes", docId);
+                    const snap = await getDoc(docRef);
+                    const code = snap.exists() ? snap.data().code : 'unknown';
+                    await deleteDoc(docRef);
+                    await logAdminAction('delete_promo', `প্রোমো কোড ডিলিট করেছেন: ${code}`);
+                    showAlert("✅ প্রোমো কোড ডিলিট করা হয়েছে!");
+                    loadPromoCodes();
+                } catch (error) {
+                    showAlert("❌ " + error.message);
+                }
+            });
+        };
+
+        // ============================================================
+        // 🔔 NOTIFICATIONS
+        // ============================================================
+        async function sendNotification() {
+            const title = document.getElementById('notification-title').value;
+            const message = document.getElementById('notification-message').value;
+            
+            if (!title || !message) return showAlert("শিরোনাম ও মেসেজ লিখুন!");
+            
+            try {
+                const usersSnapshot = await getDocs(collection(db, "users"));
+                if (usersSnapshot.empty) return showAlert("কোনো ইউজার নেই!");
+                
+                const batch = writeBatch(db);
+                let count = 0;
+                
+                for (const userDoc of usersSnapshot.docs) {
+                    const notifRef = doc(collection(db, "notifications"));
+                    batch.set(notifRef, {
+                        userId: userDoc.id,
+                        title: title,
+                        message: message,
+                        read: false,
+                        createdAt: serverTimestamp()
+                    });
+                    count++;
+                }
+                
+                await batch.commit();
+                await logAdminAction('send_notification', `নোটিফিকেশন পাঠিয়েছেন: ${title}`);
+                showAlert(`✅ ${count} জনকে নোটিফিকেশন পাঠানো হয়েছে!`);
+                document.getElementById('notification-title').value = '';
+                document.getElementById('notification-message').value = '';
+                loadSentNotifications();
+            } catch (error) {
+                showAlert("❌ " + error.message);
+            }
+        }
+
+        async function sendTestNotification() {
+            const title = document.getElementById('notification-title').value || "🧪 টেস্ট";
+            const message = document.getElementById('notification-message').value || "এটি টেস্ট!";
+            
+            try {
+                const usersSnapshot = await getDocs(collection(db, "users"));
+                if (usersSnapshot.empty) return showAlert("কোনো ইউজার নেই!");
+                
+                const firstUser = usersSnapshot.docs[0];
+                await addDoc(collection(db, "notifications"), {
+                    userId: firstUser.id,
+                    title: title,
+                    message: message,
+                    read: false,
+                    createdAt: serverTimestamp()
+                });
+                
+                await logAdminAction('send_notification', `টেস্ট নোটিফিকেশন: ${title}`);
+                showAlert(`✅ টেস্ট পাঠানো হয়েছে!`);
+                loadSentNotifications();
+            } catch (error) {
+                showAlert("❌ " + error.message);
+            }
+        }
+
+        function loadSentNotifications() {
+            const list = document.getElementById('sent-notifications-list');
+            const q = query(collection(db, "notifications"), orderBy("createdAt", "desc"), limit(20));
+            
+            onSnapshot(q, (snapshot) => {
+                if (snapshot.empty) {
+                    list.innerHTML = '<p class="text-gray-500 text-sm text-center py-4">কোনো নোটিফিকেশন নেই</p>';
+                    return;
+                }
+                
+                list.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const date = data.createdAt?.toDate?.() || new Date();
+                    list.innerHTML += `
+                        <div class="notif-item">
+                            <div class="flex justify-between items-start flex-wrap gap-2">
+                                <div>
+                                    <h4 class="font-semibold text-white">${data.title || 'নোটিফিকেশন'}</h4>
+                                    <p class="text-gray-400 text-sm">${data.message || ''}</p>
+                                    <p class="text-xs text-gray-500 mt-1">প্রাপক: ${data.userId ? data.userId.substring(0,12)+'...' : 'N/A'}</p>
+                                </div>
+                                <span class="text-xs text-gray-500">${date.toLocaleDateString('bn-BD')}</span>
+                            </div>
+                            <div class="mt-2">
+                                <button class="btn btn-danger btn-sm" onclick="deleteNotification('${doc.id}')">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        window.deleteNotification = async (notifId) => {
+            showConfirm("নোটিফিকেশন মুছবেন?", async () => {
+                try {
+                    await deleteDoc(doc(db, "notifications", notifId));
+                    showAlert("✅ মুছে ফেলা হয়েছে!");
+                } catch (error) {
+                    showAlert("❌ " + error.message);
+                }
+            });
+        };
+
+        function updateUserCount() {
+            onSnapshot(collection(db, "users"), (snap) => {
+                document.getElementById('total-users-count').textContent = snap.size + ' জন';
+            });
+        }
+
+        // ============================================================
+        // 👤 ADMIN PROFILE
+        // ============================================================
+        function loadAdminProfile() {
+            if (!currentUser) return;
+            
+            const email = currentUser.email || 'admin@example.com';
+            const name = localStorage.getItem('admin_name') || 'অ্যাডমিন';
+            
+            document.getElementById('admin-display-name').textContent = name;
+            document.getElementById('admin-display-email').textContent = email;
+            document.getElementById('admin-name-input').value = name;
+            document.getElementById('admin-uid-display').textContent = currentUser.uid;
+            document.getElementById('admin-initials').textContent = name.charAt(0).toUpperCase();
+            document.getElementById('header-admin-initial').textContent = name.charAt(0).toUpperCase();
+            document.getElementById('header-admin-name').textContent = name;
+            document.getElementById('admin-login-time').textContent = new Date().toLocaleString();
+            
+            getDoc(doc(db, "admins", currentUser.uid)).then(snap => {
+                if (snap.exists()) {
+                    const data = snap.data();
+                    if (data.createdAt) {
+                        const date = data.createdAt.toDate?.() || new Date();
+                        document.getElementById('admin-since').textContent = date.toLocaleDateString('bn-BD');
+                    }
+                }
+            }).catch(() => {});
+            
+            loadAdminActionCount();
+        }
+
+        window.updateAdminProfile = function() {
+            const name = document.getElementById('admin-name-input').value.trim();
+            if (!name) return showAlert("নাম লিখুন!");
+            
+            localStorage.setItem('admin_name', name);
+            document.getElementById('admin-display-name').textContent = name;
+            document.getElementById('admin-initials').textContent = name.charAt(0).toUpperCase();
+            document.getElementById('header-admin-initial').textContent = name.charAt(0).toUpperCase();
+            document.getElementById('header-admin-name').textContent = name;
+            
+            try {
+                setDoc(doc(db, "admins", currentUser.uid), {
+                    name: name,
+                    email: currentUser.email,
+                    updatedAt: serverTimestamp()
+                }, { merge: true });
+            } catch (e) {
+                console.log("Profile save error:", e);
+            }
+            
+            showAlert("✅ প্রোফাইল আপডেট করা হয়েছে!");
+        };
+
+        async function loadAdminActionCount() {
+            try {
+                const q = query(
+                    collection(db, "admin_logs"),
+                    where("adminId", "==", currentUser.uid)
+                );
+                const snapshot = await getDocs(q);
+                document.getElementById('admin-total-actions').textContent = snapshot.size;
+            } catch (error) {
+                console.log("Action count error:", error);
+            }
+        }
+
+        // ============================================================
+        // 🔔 ADMIN NOTIFICATIONS
+        // ============================================================
+        function listenAdminNotifications() {
+            if (!currentUser) return;
+            
+            const q = query(
+                collection(db, "admin_notifications"),
+                where("adminId", "==", currentUser.uid),
+                orderBy("createdAt", "desc"),
+                limit(20)
+            );
+            
+            onSnapshot(q, (snapshot) => {
+                const list = document.getElementById('admin-notif-list');
+                const dot = document.getElementById('admin-notif-dot');
+                
+                let hasUnread = false;
+                snapshot.forEach(doc => {
+                    if (!doc.data().read) hasUnread = true;
+                });
+                
+                dot.classList.toggle('hidden', !hasUnread);
+                
+                if (snapshot.empty) {
+                    list.innerHTML = '<p class="text-gray-500 text-sm text-center py-4">কোনো নোটিফিকেশন নেই</p>';
+                    return;
+                }
+                
+                list.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const date = data.createdAt?.toDate?.() || new Date();
+                    const isRead = data.read || false;
+                    
+                    list.innerHTML += `
+                        <div class="notif-item ${isRead ? 'opacity-60' : ''}" 
+                             onclick="markAdminNotifRead('${doc.id}')">
+                            <div class="flex items-start gap-2">
+                                <span class="text-lg">${data.icon || '🔔'}</span>
+                                <div class="flex-1">
+                                    <p class="text-sm text-white font-medium">${data.title || ''}</p>
+                                    <p class="text-xs text-gray-400">${data.message || ''}</p>
+                                    <p class="text-[10px] text-gray-500 mt-1">${date.toLocaleTimeString('bn-BD', {hour:'2-digit',minute:'2-digit'})}</p>
+                                </div>
+                                ${!isRead ? '<span class="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>' : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        window.toggleAdminNotifications = function() {
+            const dropdown = document.getElementById('admin-notif-dropdown');
+            dropdown.classList.toggle('hidden');
+            if (!dropdown.classList.contains('hidden')) {
+                markAllAdminNotifsRead();
+            }
+        };
+
+        async function markAllAdminNotifsRead() {
+            try {
+                const q = query(
+                    collection(db, "admin_notifications"),
+                    where("adminId", "==", currentUser.uid),
+                    where("read", "==", false)
+                );
+                const snapshot = await getDocs(q);
+                const batch = writeBatch(db);
+                snapshot.forEach(doc => {
+                    batch.update(doc.ref, { read: true });
+                });
+                await batch.commit();
+                document.getElementById('admin-notif-dot').classList.add('hidden');
+            } catch (error) {
+                console.log("Mark all read error:", error);
+            }
+        }
+
+        window.markAdminNotifRead = async function(notifId) {
+            try {
+                await updateDoc(doc(db, "admin_notifications", notifId), { read: true });
+                const q = query(
+                    collection(db, "admin_notifications"),
+                    where("adminId", "==", currentUser.uid),
+                    where("read", "==", false)
+                );
+                const snap = await getDocs(q);
+                document.getElementById('admin-notif-dot').classList.toggle('hidden', snap.empty);
+            } catch (error) {
+                console.log("Mark read error:", error);
+            }
+        };
+
+        // ============================================================
+        // 📋 ADMIN ACTIVITY LOG
+        // ============================================================
+        async function logAdminAction(actionType, details, icon = '🔔') {
+            if (!currentUser) return;
+            
+            const actionMessages = {
+                'verify_user': 'ইউজার ভেরিফাই করেছেন',
+                'reject_verification': 'ভেরিফিকেশন বাতিল করেছেন',
+                'approve_withdrawal': 'উত্তোলন অনুমোদন করেছেন',
+                'reject_withdrawal': 'উত্তোলন বাতিল করেছেন',
+                'block_user': 'ইউজার ব্লক করেছেন',
+                'unblock_user': 'ইউজার আনব্লক করেছেন',
+                'send_notification': 'নোটিফিকেশন পাঠিয়েছেন',
+                'update_settings': 'সেটিংস আপডেট করেছেন',
+                'export_data': 'ডেটা এক্সপোর্ট করেছেন',
+                'create_promo': 'প্রোমো কোড তৈরি করেছেন',
+                'update_promo': 'প্রোমো কোড আপডেট করেছেন',
+                'delete_promo': 'প্রোমো কোড ডিলিট করেছেন'
+            };
+            
+            const title = actionMessages[actionType] || actionType;
+            const adminName = localStorage.getItem('admin_name') || 'অ্যাডমিন';
+            
+            try {
+                await addDoc(collection(db, "admin_logs"), {
+                    adminId: currentUser.uid,
+                    adminName: adminName,
+                    adminEmail: currentUser.email,
+                    actionType: actionType,
+                    title: title,
+                    details: details,
+                    icon: icon,
+                    createdAt: serverTimestamp()
+                });
+                
+                await addDoc(collection(db, "admin_notifications"), {
+                    adminId: currentUser.uid,
+                    title: title,
+                    message: details,
+                    icon: icon,
+                    read: false,
+                    createdAt: serverTimestamp()
+                });
+                
+            } catch (error) {
+                console.log("Log admin action error:", error);
+            }
+        }
+
+        function loadActivityLogs() {
+            const tableBody = document.getElementById('activity-logs-body');
+            const q = query(collection(db, "admin_logs"), orderBy("createdAt", "desc"), limit(50));
+            
+            onSnapshot(q, (snapshot) => {
+                if (snapshot.empty) {
+                    tableBody.innerHTML = '<tr><td colspan="4" class="text-center text-gray-500 py-8">কোনো লগ নেই</td></tr>';
+                    return;
+                }
+                
+                tableBody.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const log = doc.data();
+                    const date = log.createdAt?.toDate?.() || new Date();
+                    const actionColors = {
+                        'verify_user': 'text-green-400',
+                        'reject_verification': 'text-red-400',
+                        'approve_withdrawal': 'text-green-400',
+                        'reject_withdrawal': 'text-red-400',
+                        'block_user': 'text-red-400',
+                        'unblock_user': 'text-green-400',
+                        'send_notification': 'text-blue-400',
+                        'update_settings': 'text-yellow-400',
+                        'export_data': 'text-purple-400',
+                        'create_promo': 'text-green-400',
+                        'update_promo': 'text-blue-400',
+                        'delete_promo': 'text-red-400'
+                    };
+                    const color = actionColors[log.actionType] || 'text-gray-400';
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="font-medium">${log.adminName || 'N/A'}</td>
+                        <td><span class="${color}">${log.title || log.actionType}</span></td>
+                        <td class="text-gray-400 text-sm">${log.details || ''}</td>
+                        <td class="text-gray-500 text-sm">${date.toLocaleString('bn-BD')}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            });
+        }
+
+        // ============================================================
+        // 📥 EXPORT FUNCTIONS
+        // ============================================================
+        window.exportUsers = async function() {
+            try {
+                const snapshot = await getDocs(collection(db, "users"));
+                if (snapshot.empty) return showAlert("কোনো ইউজার নেই!");
+                
+                let csv = "নাম,ইমেইল,কয়েন,ভেরিফাইড,ব্লক,রেফারেল কোড,জয়েন তারিখ\n";
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const date = data.createdAt?.toDate?.() || new Date();
+                    csv += `"${data.name || ''}","${data.email || ''}",${data.balance || 0},${data.isVerified ? 'হ্যাঁ' : 'না'},${data.isBlocked ? 'হ্যাঁ' : 'না'},"${data.referralCode || ''}","${date.toLocaleDateString()}"\n`;
+                });
+                
+                downloadCSV(csv, 'users_export.csv');
+                await logAdminAction('export_data', `ইউজার এক্সপোর্ট করেছেন (${snapshot.size} জন)`);
+                showAlert(`✅ ${snapshot.size} জন ইউজার এক্সপোর্ট করা হয়েছে!`);
+            } catch (error) {
+                showAlert("❌ " + error.message);
+            }
+        };
+
+        window.exportWithdrawals = async function() {
+            try {
+                const snapshot = await getDocs(collection(db, "withdrawals"));
+                if (snapshot.empty) return showAlert("কোনো উইথড্রোয়াল নেই!");
+                
+                let csv = "ইউজার,পরিমাণ,মেথড,নম্বর,স্ট্যাটাস,তারিখ\n";
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const date = data.requestedAt?.toDate?.() || new Date();
+                    csv += `"${data.userName || ''}",${data.amount || 0},"${data.method || ''}","${data.paymentDetail || ''}","${data.status || 'pending'}","${date.toLocaleDateString()}"\n`;
+                });
+                
+                downloadCSV(csv, 'withdrawals_export.csv');
+                await logAdminAction('export_data', `উইথড্রোয়াল এক্সপোর্ট করেছেন (${snapshot.size} টি)`);
+                showAlert(`✅ ${snapshot.size} টি উইথড্রোয়াল এক্সপোর্ট করা হয়েছে!`);
+            } catch (error) {
+                showAlert("❌ " + error.message);
+            }
+        };
+
+        window.exportVerifications = async function() {
+            try {
+                const snapshot = await getDocs(collection(db, "verification_request"));
+                if (snapshot.empty) return showAlert("কোনো ভেরিফিকেশন রিকোয়েস্ট নেই!");
+                
+                let csv = "ইউজার,মোবাইল,ট্রানজেকশন আইডি,মেথড,স্ট্যাটাস,তারিখ\n";
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const date = data.submittedAt?.toDate?.() || new Date();
+                    csv += `"${data.userName || ''}","${data.mobileNumber || ''}","${data.transactionId || ''}","${data.method || ''}","${data.status || 'pending'}","${date.toLocaleDateString()}"\n`;
+                });
+                
+                downloadCSV(csv, 'verifications_export.csv');
+                await logAdminAction('export_data', `ভেরিফিকেশন এক্সপোর্ট করেছেন (${snapshot.size} টি)`);
+                showAlert(`✅ ${snapshot.size} টি রিকোয়েস্ট এক্সপোর্ট করা হয়েছে!`);
+            } catch (error) {
+                showAlert("❌ " + error.message);
+            }
+        };
+
+        window.exportActivityLogs = async function() {
+            try {
+                const snapshot = await getDocs(query(collection(db, "admin_logs"), orderBy("createdAt", "desc"), limit(100)));
+                if (snapshot.empty) return showAlert("কোনো লগ নেই!");
+                
+                let csv = "অ্যাডমিন,অ্যাকশন,বিস্তারিত,তারিখ\n";
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const date = data.createdAt?.toDate?.() || new Date();
+                    csv += `"${data.adminName || ''}","${data.title || data.actionType}","${data.details || ''}","${date.toLocaleString()}"\n`;
+                });
+                
+                downloadCSV(csv, 'activity_logs_export.csv');
+                await logAdminAction('export_data', `অ্যাক্টিভিটি লগ এক্সপোর্ট করেছেন (${snapshot.size} টি)`);
+                showAlert(`✅ ${snapshot.size} টি লগ এক্সপোর্ট করা হয়েছে!`);
+            } catch (error) {
+                showAlert("❌ " + error.message);
+            }
+        };
+
+        function downloadCSV(csv, filename) {
+            const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // ============================================================
+        // ⚙️ SETTINGS
+        // ============================================================
+        async function loadSettings() {
+            try {
+                const configRef = doc(db, "config", "main");
+                const docSnap = await getDoc(configRef);
+                if (docSnap.exists()) {
+                    const config = docSnap.data();
+                    document.getElementById('verification-fee').value = config.verificationFee || 20;
+                    document.getElementById('min-withdrawal').value = config.minWithdrawal || 5000;
+                    document.getElementById('daily-ad-limit').value = config.dailyAdLimit || 10;
+                    document.getElementById('coin-value-coins').value = config.coinValueCoins || 1000;
+                    document.getElementById('coin-value-inr').value = config.coinValueInr || 10;
+                    document.getElementById('payment-methods').value = (config.paymentMethods || ['বিকাশ', 'নগদ', 'রকেট']).join(', ');
+                }
+            } catch (error) {
+                console.error("Error loading settings:", error);
+            }
+        }
+
+        async function saveSettings() {
+            const verificationFee = parseInt(document.getElementById('verification-fee').value) || 20;
+            const minWithdrawal = parseInt(document.getElementById('min-withdrawal').value);
+            const dailyAdLimit = parseInt(document.getElementById('daily-ad-limit').value);
+            const coinValueCoins = parseInt(document.getElementById('coin-value-coins').value);
+            const coinValueInr = parseInt(document.getElementById('coin-value-inr').value);
+            const paymentMethods = document.getElementById('payment-methods').value.split(',').map(s => s.trim()).filter(Boolean);
+            
+            if (isNaN(minWithdrawal) || isNaN(dailyAdLimit) || isNaN(coinValueCoins) || isNaN(coinValueInr)) {
+                return showAlert("সব সংখ্যা ফিল্ডে সঠিক মান দিন!");
+            }
+            
+            try {
+                await setDoc(doc(db, "config", "main"), {
+                    verificationFee,
+                    minWithdrawal,
+                    dailyAdLimit,
+                    coinValueCoins,
+                    coinValueInr,
+                    paymentMethods,
+                    updatedAt: serverTimestamp()
+                }, { merge: true });
+                
+                await logAdminAction('update_settings', `সেটিংস আপডেট করেছেন: মিন উইথড্রোয়াল=${minWithdrawal}, ফি=${verificationFee}`);
+                showAlert("✅ সেটিংস সেভ করা হয়েছে!");
+            } catch (error) {
+                showAlert("❌ " + error.message);
+            }
+        }
+
+        // ============================================================
+        // 🔔 ALERTS
+        // ============================================================
+        function showAlert(message) {
+            document.getElementById('alert-message').textContent = message;
+            document.getElementById('custom-alert').classList.remove('hidden');
+            document.getElementById('alert-ok-btn').onclick = () => {
+                document.getElementById('custom-alert').classList.add('hidden');
+            };
+        }
+        window.showAlert = showAlert;
+
+        function showConfirm(message, onConfirm) {
+            const confirmModal = document.getElementById('custom-confirm');
+            document.getElementById('confirm-message').textContent = message;
+            confirmModal.classList.remove('hidden');
+
+            const okListener = () => {
+                confirmModal.classList.add('hidden');
+                document.getElementById('confirm-ok-btn').removeEventListener('click', okListener);
+                document.getElementById('confirm-cancel-btn').removeEventListener('click', cancelListener);
+                onConfirm();
+            };
+
+            const cancelListener = () => {
+                confirmModal.classList.add('hidden');
+                document.getElementById('confirm-ok-btn').removeEventListener('click', okListener);
+                document.getElementById('confirm-cancel-btn').removeEventListener('click', cancelListener);
+            };
+
+            document.getElementById('confirm-ok-btn').addEventListener('click', okListener);
+            document.getElementById('confirm-cancel-btn').addEventListener('click', cancelListener);
+        }
+        window.showConfirm = showConfirm;
+
+        setInterval(() => {
+            lucide.createIcons();
+        }, 5000);
+        
+        console.log("✅ অ্যাডমিন প্যানেল সম্পূর্ণ লোড হয়েছে!");
+        console.log("📌 ফিচার সমূহ:");
+        console.log("  ✅ ইউজার ম্যানেজমেন্ট");
+        console.log("  ✅ ভেরিফিকেশন (স্ক্রিনশট + ট্রানজেকশন আইডি)");
+        console.log("  ✅ উইথড্রোয়াল ম্যানেজমেন্ট");
+        console.log("  ✅ প্রোমো কোড তৈরি/এডিট/ডিলিট");
+        console.log("  ✅ দৈনিক প্রোমো কোড জেনারেটর বাটন");
+        console.log("  ✅ নোটিফিকেশন (সবাই + টেস্ট)");
+        console.log("  ✅ সেটিংস কনফিগারেশন");
+        console.log("  ✅ অ্যাডমিন প্রোফাইল");
+        console.log("  ✅ ডার্ক/লাইট মোড");
+        console.log("  ✅ অ্যাক্টিভিটি লগ");
+        console.log("  ✅ রিয়েল-টাইম অ্যাডমিন নোটিফিকেশন");
+        console.log("  ✅ CSV এক্সপোর্ট");
+        console.log("  ✅ ডেইলি অ্যাক্টিভ ইউজার + রেভিনিউ");
+    </script>
+</body>
+</html>
