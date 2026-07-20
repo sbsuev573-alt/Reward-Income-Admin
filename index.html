@@ -380,6 +380,26 @@
             padding: 16px;
             text-align: center;
         }
+
+        /* ✅ চ্যাট স্টাইল */
+        .chat-modal { background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); }
+        .chat-modal .chat-box { background: linear-gradient(145deg, #1a1a2e, #0d0d1a); border: 1px solid rgba(249,115,22,0.2); border-radius: 20px; max-width: 500px; width: 100%; max-height: 90vh; display: flex; flex-direction: column; }
+        .chat-modal .chat-header { border-bottom: 1px solid rgba(255,255,255,0.05); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+        .chat-modal .chat-messages { flex: 1; overflow-y: auto; padding: 16px 20px; max-height: 400px; }
+        .chat-modal .chat-messages .msg { margin-bottom: 8px; max-width: 80%; padding: 10px 14px; border-radius: 12px; word-wrap: break-word; }
+        .chat-modal .chat-messages .msg.sent { background: linear-gradient(135deg, #f97316, #ea580c); color: #fff; margin-left: auto; border-bottom-right-radius: 4px; }
+        .chat-modal .chat-messages .msg.received { background: #1a1a2e; color: #fff; border: 1px solid rgba(255,255,255,0.05); border-bottom-left-radius: 4px; }
+        .chat-modal .chat-messages .msg .time { font-size: 9px; opacity: 0.6; margin-top: 4px; display: block; }
+        .chat-modal .chat-input { border-top: 1px solid rgba(255,255,255,0.05); padding: 12px 16px; display: flex; gap: 10px; flex-shrink: 0; }
+        .chat-modal .chat-input input { flex: 1; background: #1a1a2e; border: 1px solid #2a2a4e; border-radius: 12px; padding: 10px 14px; color: #fff; outline: none; }
+        .chat-modal .chat-input input:focus { border-color: #f97316; }
+        .chat-modal .chat-input button { background: linear-gradient(135deg, #f97316, #ea580c); color: #fff; border: none; border-radius: 12px; padding: 10px 16px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; }
+        .chat-modal .chat-input button:hover { transform: scale(1.05); }
+        .chat-modal .close-chat { background: rgba(255,255,255,0.05); border: none; color: #9ca3af; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
+        .chat-modal .close-chat:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .chat-modal .no-messages { text-align: center; color: #6b7280; padding: 40px 0; }
+        .chat-modal .no-messages .icon { font-size: 48px; margin-bottom: 12px; }
+        .chat-modal .user-info { font-size: 12px; color: #9ca3af; }
     </style>
 </head>
 <body>
@@ -433,6 +453,11 @@
                     <a class="nav-link" data-page="notifications-page">
                         <i data-lucide="bell" class="w-5 h-5"></i>
                         <span>নোটিফিকেশন</span>
+                    </a>
+                    <!-- ✅ নতুন: মেসেজ পেজ -->
+                    <a class="nav-link" data-page="messages-page">
+                        <i data-lucide="message-circle" class="w-5 h-5"></i>
+                        <span>মেসেজ</span>
                     </a>
                     <a class="nav-link" data-page="settings-page">
                         <i data-lucide="settings" class="w-5 h-5"></i>
@@ -657,7 +682,7 @@
                 </div>
 
                 <!-- ========================================================== -->
-                <!-- PAGE: PROMO CODES (আপডেটেড - জেনারেট বাটন যোগ) -->
+                <!-- PAGE: PROMO CODES -->
                 <!-- ========================================================== -->
                 <div id="promo-page" class="page">
                     <div class="flex items-center justify-between mb-6 flex-wrap gap-4 mt-4">
@@ -677,7 +702,6 @@
                         </div>
                     </div>
                     
-                    <!-- প্রোমো জেনারেট স্ট্যাটাস -->
                     <div id="promo-gen-status" class="mb-4"></div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -761,6 +785,61 @@
                 </div>
 
                 <!-- ========================================================== -->
+                <!-- ✅ PAGE: MESSAGES (ইউজারদের সাথে চ্যাট) -->
+                <!-- ========================================================== -->
+                <div id="messages-page" class="page">
+                    <div class="flex items-center justify-between mb-6 flex-wrap gap-4 mt-4">
+                        <div>
+                            <h2 class="text-2xl font-black text-white">💬 ইউজার মেসেজ</h2>
+                            <p class="text-gray-500 text-sm mt-1">ইউজারদের সাথে যোগাযোগ করুন</p>
+                        </div>
+                        <span class="text-xs text-gray-400" id="total-chats">০ টি চ্যাট</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- চ্যাট লিস্ট -->
+                        <div class="md:col-span-1">
+                            <div class="card-bg p-3 rounded-xl border border-white/5 max-h-[500px] overflow-y-auto" style="background: linear-gradient(145deg, #1a1a2e, #0d0d18);">
+                                <h4 class="text-sm font-semibold text-gray-400 mb-3">📋 চ্যাট লিস্ট</h4>
+                                <div id="chat-list-container">
+                                    <p class="text-gray-500 text-sm text-center py-4">লোড হচ্ছে...</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- চ্যাট উইন্ডো -->
+                        <div class="md:col-span-2">
+                            <div id="chat-window-container" class="card-bg rounded-xl border border-white/5 flex flex-col" style="background: linear-gradient(145deg, #1a1a2e, #0d0d18); min-height: 400px;">
+                                <div id="chat-placeholder" class="flex-1 flex items-center justify-center text-gray-500">
+                                    <div class="text-center">
+                                        <div class="text-5xl mb-3">💬</div>
+                                        <p>বাম দিক থেকে একটি চ্যাট সিলেক্ট করুন</p>
+                                    </div>
+                                </div>
+                                <div id="chat-window" class="hidden flex flex-col h-full">
+                                    <div class="chat-header border-b border-white/5 p-3 flex items-center justify-between">
+                                        <div>
+                                            <span id="chat-user-name" class="font-bold text-white">ইউজার</span>
+                                            <span id="chat-user-email" class="text-xs text-gray-400 ml-2"></span>
+                                        </div>
+                                        <span id="chat-user-status" class="text-xs text-green-400">অনলাইন</span>
+                                    </div>
+                                    <div id="chat-messages-container" class="flex-1 overflow-y-auto p-3 max-h-[350px] space-y-2">
+                                        <div class="no-messages text-center text-gray-500 py-8">
+                                            <div class="text-3xl mb-2">💬</div>
+                                            <p>কোনো মেসেজ নেই</p>
+                                        </div>
+                                    </div>
+                                    <div class="chat-input-container border-t border-white/5 p-3 flex gap-2">
+                                        <input type="text" id="admin-chat-input" placeholder="মেসেজ লিখুন..." class="input-field flex-1" onkeydown="if(event.key==='Enter') sendAdminMessage()">
+                                        <button onclick="sendAdminMessage()" class="btn btn-primary">পাঠান</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========================================================== -->
                 <!-- PAGE: SETTINGS -->
                 <!-- ========================================================== -->
                 <div id="settings-page" class="page">
@@ -796,6 +875,29 @@
                         <div>
                             <label class="block text-sm font-semibold text-gray-300 mb-2">পেমেন্ট মেথড (কমা দিয়ে)</label>
                             <input type="text" id="payment-methods" class="input-field" placeholder="বিকাশ, নগদ, রকেট">
+                        </div>
+                        <!-- ✅ ভার্সন কন্ট্রোল (নতুন) -->
+                        <div class="border-t border-white/5 pt-4">
+                            <h3 class="text-sm font-semibold text-gray-400 mb-3">📱 অ্যাপ ভার্সন কন্ট্রোল</h3>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-300 mb-1">বর্তমান ভার্সন</label>
+                                    <input type="text" id="app-version-input" class="input-field" placeholder="1.0.0" value="1.0.0">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-300 mb-1">আপডেট মেসেজ</label>
+                                    <input type="text" id="update-message-input" class="input-field" placeholder="নতুন আপডেট আসছে!">
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 mt-2">
+                                <input type="checkbox" id="force-update-input" class="w-4 h-4 accent-red-500">
+                                <label class="text-xs font-semibold text-gray-300">বাধ্যতামূলক আপডেট</label>
+                            </div>
+                            <button onclick="updateAppVersion()" class="btn btn-warning w-full mt-3 justify-center">
+                                <i data-lucide="upload" class="w-4 h-4"></i>
+                                ভার্সন আপডেট করুন
+                            </button>
+                            <p id="version-status" class="text-xs text-gray-500 mt-2 text-center"></p>
                         </div>
                         <button id="save-settings-btn" class="btn btn-primary w-full justify-center">সেটিংস সেভ করুন</button>
                     </div>
@@ -1060,6 +1162,8 @@
         const dashboardView = document.getElementById('admin-dashboard');
         let currentUser = null;
         let currentTheme = 'dark';
+        let currentChatUserId = null;
+        let chatUnsubscribe = null;
 
         // ============================================================
         // 🚀 INIT
@@ -1093,6 +1197,7 @@
                     listenAdminNotifications();
                     loadActivityLogs();
                     loadDailyStats();
+                    loadChatList();
                 } else {
                     loginView.style.display = 'flex';
                     dashboardView.style.display = 'none';
@@ -1124,6 +1229,7 @@
                 'withdrawals-page': '💸 উত্তোলন রিকোয়েস্ট',
                 'promo-page': '🎫 প্রোমো কোড',
                 'notifications-page': '🔔 নোটিফিকেশন পাঠান',
+                'messages-page': '💬 ইউজার মেসেজ',
                 'settings-page': '⚙️ সেটিংস',
                 'admin-profile-page': '👤 অ্যাডমিন প্রোফাইল',
                 'activity-logs-page': '📋 অ্যাক্টিভিটি লগ'
@@ -1137,6 +1243,7 @@
             if (pageId === 'notifications-page') { loadSentNotifications(); updateUserCount(); }
             if (pageId === 'activity-logs-page') loadActivityLogs();
             if (pageId === 'dashboard-page') loadDailyStats();
+            if (pageId === 'messages-page') loadChatList();
         }
 
         // ============================================================
@@ -1162,6 +1269,11 @@
             
             document.getElementById('admin-password').addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') handleAdminLogin();
+            });
+            
+            // ✅ চ্যাট ইনপুট এন্টার
+            document.getElementById('admin-chat-input')?.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') sendAdminMessage();
             });
         }
 
@@ -1627,14 +1739,12 @@
             });
         }
 
-        // 🚀 দৈনিক প্রোমো কোড জেনারেটর (অ্যাডমিন প্যানেল)
         window.generateDailyPromoCode = async function() {
             const statusDiv = document.getElementById('promo-gen-status');
             const today = new Date();
             const dateStr = today.toISOString().split('T')[0].replace(/-/g, '');
             const code = `RN${dateStr}`;
             
-            // লোডিং স্ট্যাটাস
             statusDiv.innerHTML = `
                 <div class="loading-box">
                     <p class="text-blue-400 font-medium">⏳ কোড জেনারেট হচ্ছে...</p>
@@ -1642,7 +1752,6 @@
             `;
             
             try {
-                // ✅ চেক: আজকের কোড ইতিমধ্যে আছে?
                 const q = query(
                     collection(db, "promo_codes"),
                     where("code", "==", code)
@@ -1656,16 +1765,13 @@
                             <p class="text-sm text-gray-400 mt-1">কোড: <span class="font-mono font-bold text-white">${code}</span></p>
                         </div>
                     `;
-                    // অটো হাইড
                     setTimeout(() => { statusDiv.innerHTML = ''; }, 5000);
                     return;
                 }
                 
-                // ✅ এক্সপাইরি টাইম সেট করুন (আজ রাত ১২টা)
                 const expiryDate = new Date(today);
                 expiryDate.setHours(23, 59, 59, 999);
                 
-                // ✅ নতুন কোড তৈরি করুন
                 await addDoc(collection(db, "promo_codes"), {
                     code: code,
                     reward: 100,
@@ -1681,10 +1787,8 @@
                     generatedByName: localStorage.getItem('admin_name') || 'অ্যাডমিন'
                 });
                 
-                // ✅ অ্যাক্টিভিটি লগ
                 await logAdminAction('create_promo', `দৈনিক প্রোমো কোড তৈরি করেছেন: ${code}`);
                 
-                // ✅ সাকসেস মেসেজ
                 statusDiv.innerHTML = `
                     <div class="success-box">
                         <p class="text-green-400 font-bold text-lg">✅ নতুন দৈনিক কোড তৈরি হয়েছে!</p>
@@ -1694,10 +1798,8 @@
                     </div>
                 `;
                 
-                // ✅ টেবিল রিফ্রেশ
                 loadPromoCodes();
                 
-                // ✅ অটো হাইড (৮ সেকেন্ড পর)
                 setTimeout(() => {
                     statusDiv.innerHTML = '';
                 }, 8000);
@@ -1712,7 +1814,6 @@
             }
         };
 
-        // র‍্যান্ডম প্রোমো কোড জেনারেট
         window.generateRandomPromoCode = function() {
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             let code = '';
@@ -1722,7 +1823,6 @@
             document.getElementById('promo-code-input').value = code;
         };
 
-        // প্রোমো টাইপ পরিবর্তনে ইউজার সেকশন দেখানো
         window.togglePromoUserField = function() {
             const type = document.getElementById('promo-type-input').value;
             const userSection = document.getElementById('promo-user-section');
@@ -1733,7 +1833,6 @@
             }
         };
 
-        // প্রোমো কোড তৈরি পপআপ খোলা
         window.openCreatePromo = function() {
             document.getElementById('create-promo-modal').classList.remove('hidden');
             document.getElementById('promo-code-input').value = '';
@@ -1750,7 +1849,6 @@
             document.getElementById('create-promo-modal').classList.add('hidden');
         };
 
-        // প্রোমো কোড সেভ
         window.savePromoCode = async function() {
             const code = document.getElementById('promo-code-input').value.trim().toUpperCase();
             const reward = parseInt(document.getElementById('promo-reward-input').value);
@@ -1764,7 +1862,6 @@
             if (!reward || reward <= 0) return showAlert("সঠিক রিওয়ার্ড দিন!");
             if (type === 'personal' && !userId) return showAlert("ব্যক্তিগত টাইপে ইউজার আইডি দিন!");
             
-            // চেক করুন কোড ইতিমধ্যে আছে কিনা
             const q = query(collection(db, "promo_codes"), where("code", "==", code));
             const snap = await getDocs(q);
             if (!snap.empty) return showAlert("এই কোড ইতিমধ্যে আছে!");
@@ -1790,7 +1887,6 @@
             }
         };
 
-        // প্রোমো কোড এডিট
         window.editPromoCode = async function(docId) {
             const docRef = doc(db, "promo_codes", docId);
             const snap = await getDoc(docRef);
@@ -1812,7 +1908,6 @@
             document.getElementById('edit-promo-modal').classList.add('hidden');
         };
 
-        // প্রোমো কোড আপডেট
         window.updatePromoCode = async function() {
             const docId = document.getElementById('edit-promo-id').value;
             const reward = parseInt(document.getElementById('edit-promo-reward').value);
@@ -1841,7 +1936,6 @@
             }
         };
 
-        // প্রোমো কোড ডিলিট
         window.deletePromoCode = function(docId) {
             showConfirm("আপনি কি এই প্রোমো কোড ডিলিট করতে চান?", async () => {
                 try {
@@ -2152,7 +2246,8 @@
                 'export_data': 'ডেটা এক্সপোর্ট করেছেন',
                 'create_promo': 'প্রোমো কোড তৈরি করেছেন',
                 'update_promo': 'প্রোমো কোড আপডেট করেছেন',
-                'delete_promo': 'প্রোমো কোড ডিলিট করেছেন'
+                'delete_promo': 'প্রোমো কোড ডিলিট করেছেন',
+                'update_version': 'অ্যাপ ভার্সন আপডেট করেছেন'
             };
             
             const title = actionMessages[actionType] || actionType;
@@ -2210,7 +2305,8 @@
                         'export_data': 'text-purple-400',
                         'create_promo': 'text-green-400',
                         'update_promo': 'text-blue-400',
-                        'delete_promo': 'text-red-400'
+                        'delete_promo': 'text-red-400',
+                        'update_version': 'text-blue-400'
                     };
                     const color = actionColors[log.actionType] || 'text-gray-400';
                     
@@ -2336,6 +2432,9 @@
                     document.getElementById('coin-value-coins').value = config.coinValueCoins || 1000;
                     document.getElementById('coin-value-inr').value = config.coinValueInr || 10;
                     document.getElementById('payment-methods').value = (config.paymentMethods || ['বিকাশ', 'নগদ', 'রকেট']).join(', ');
+                    document.getElementById('app-version-input').value = config.appVersion || '1.0.0';
+                    document.getElementById('update-message-input').value = config.updateMessage || 'নতুন আপডেট আসছে!';
+                    document.getElementById('force-update-input').checked = config.forceUpdate || false;
                 }
             } catch (error) {
                 console.error("Error loading settings:", error);
@@ -2371,6 +2470,216 @@
                 showAlert("❌ " + error.message);
             }
         }
+
+        // ============================================================
+        // ✅ ভার্সন আপডেট ফাংশন (নতুন)
+        // ============================================================
+        window.updateAppVersion = async function() {
+            const version = document.getElementById('app-version-input').value.trim();
+            const message = document.getElementById('update-message-input').value.trim();
+            const forceUpdate = document.getElementById('force-update-input').checked;
+            const statusEl = document.getElementById('version-status');
+            
+            if (!version) {
+                statusEl.textContent = '⚠️ দয়া করে ভার্সন নাম্বার দিন!';
+                statusEl.className = 'text-xs text-red-400 mt-2 text-center';
+                return;
+            }
+            
+            statusEl.textContent = '⏳ আপডেট হচ্ছে...';
+            statusEl.className = 'text-xs text-blue-400 mt-2 text-center';
+            
+            try {
+                const configRef = doc(db, "config", "main");
+                await updateDoc(configRef, {
+                    appVersion: version,
+                    updateMessage: message || 'নতুন আপডেট আসছে!',
+                    forceUpdate: forceUpdate,
+                    lastUpdateDate: new Date().toISOString().split('T')[0],
+                    updatedAt: serverTimestamp()
+                });
+                
+                await logAdminAction('update_version', `অ্যাপ ভার্সন আপডেট করেছেন: ${version} (${forceUpdate ? 'বাধ্যতামূলক' : 'ঐচ্ছিক'})`);
+                
+                statusEl.textContent = `✅ ভার্সন ${version} আপডেট করা হয়েছে!`;
+                statusEl.className = 'text-xs text-green-400 mt-2 text-center';
+                showAlert(`✅ অ্যাপ ভার্সন ${version} এ আপডেট করা হয়েছে!`);
+            } catch (error) {
+                statusEl.textContent = `❌ আপডেট করতে সমস্যা: ${error.message}`;
+                statusEl.className = 'text-xs text-red-400 mt-2 text-center';
+                showAlert("❌ ভার্সন আপডেট করতে সমস্যা হয়েছে!");
+            }
+        };
+
+        // ============================================================
+        // 💬 চ্যাট সিস্টেম (নতুন)
+        // ============================================================
+        function loadChatList() {
+            const container = document.getElementById('chat-list-container');
+            
+            // সব ইউজার দেখাও যাদের সাথে চ্যাট আছে
+            const q = query(collection(db, "messages"), orderBy("lastMessageTime", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
+                if (snapshot.empty) {
+                    container.innerHTML = '<p class="text-gray-500 text-sm text-center py-4">কোনো চ্যাট নেই</p>';
+                    document.getElementById('total-chats').textContent = '০ টি';
+                    return;
+                }
+                
+                document.getElementById('total-chats').textContent = snapshot.size + ' টি';
+                container.innerHTML = '';
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const chatId = doc.id;
+                    const userId = data.userId;
+                    const userName = data.userName || 'ইউজার';
+                    const userEmail = data.userEmail || '';
+                    const lastMessage = data.lastMessage || 'কোনো মেসেজ নেই';
+                    const unread = data.unread || false;
+                    const time = data.lastMessageTime?.toDate?.() || new Date();
+                    
+                    const chatItem = document.createElement('div');
+                    chatItem.className = `p-3 rounded-xl cursor-pointer transition hover:bg-white/5 border ${unread ? 'border-orange-500/30' : 'border-transparent'}`;
+                    chatItem.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-orange-400 to-purple-400 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                                ${userName.charAt(0).toUpperCase()}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-semibold text-white text-sm truncate">${userName}</span>
+                                    <span class="text-[10px] text-gray-500 flex-shrink-0">${time.toLocaleTimeString('bn-BD', {hour:'2-digit',minute:'2-digit'})}</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs text-gray-400 truncate">${lastMessage}</span>
+                                    ${unread ? '<span class="w-2 h-2 bg-orange-500 rounded-full flex-shrink-0"></span>' : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    chatItem.onclick = () => openChatWithUser(userId, userName, userEmail);
+                    container.appendChild(chatItem);
+                });
+            });
+        }
+
+        function openChatWithUser(userId, userName, userEmail) {
+            currentChatUserId = userId;
+            
+            document.getElementById('chat-placeholder').classList.add('hidden');
+            document.getElementById('chat-window').classList.remove('hidden');
+            document.getElementById('chat-user-name').textContent = userName || 'ইউজার';
+            document.getElementById('chat-user-email').textContent = userEmail || '';
+            
+            // চ্যাট মেসেজ লোড করো
+            loadChatMessages(userId);
+        }
+
+        function loadChatMessages(userId) {
+            const container = document.getElementById('chat-messages-container');
+            
+            if (chatUnsubscribe) {
+                chatUnsubscribe();
+                chatUnsubscribe = null;
+            }
+            
+            const chatId = `${userId}_${currentUser.uid}`;
+            const messagesRef = collection(db, "messages", chatId, "messages");
+            const q = query(messagesRef, orderBy("timestamp", "asc"));
+            
+            chatUnsubscribe = onSnapshot(q, (snapshot) => {
+                if (snapshot.empty) {
+                    container.innerHTML = `
+                        <div class="no-messages text-center text-gray-500 py-8">
+                            <div class="text-3xl mb-2">💬</div>
+                            <p>কোনো মেসেজ নেই</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = '';
+                let hasUnread = false;
+                
+                snapshot.forEach(doc => {
+                    const msg = doc.data();
+                    const isAdmin = msg.sender === 'admin';
+                    const time = msg.timestamp?.toDate?.() || new Date();
+                    
+                    if (!isAdmin && !msg.read) {
+                        hasUnread = true;
+                        updateDoc(doc.ref, { read: true }).catch(() => {});
+                    }
+                    
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = `msg ${isAdmin ? 'sent' : 'received'}`;
+                    msgDiv.innerHTML = `
+                        ${msg.text}
+                        <span class="time">${time.toLocaleTimeString('bn-BD', {hour:'2-digit',minute:'2-digit'})}</span>
+                    `;
+                    container.appendChild(msgDiv);
+                });
+                
+                container.scrollTop = container.scrollHeight;
+                
+                // চ্যাট ডকুমেন্ট আপডেট
+                const chatRef = doc(db, "messages", `${userId}_${currentUser.uid}`);
+                const lastMsg = snapshot.docs[snapshot.docs.length - 1]?.data();
+                if (lastMsg) {
+                    updateDoc(chatRef, {
+                        lastMessage: lastMsg.text,
+                        lastMessageTime: lastMsg.timestamp || serverTimestamp(),
+                        unread: false
+                    }).catch(() => {});
+                }
+            });
+        }
+
+        window.sendAdminMessage = async function() {
+            const input = document.getElementById('admin-chat-input');
+            const text = input.value.trim();
+            if (!text || !currentChatUserId) return;
+            
+            input.value = '';
+            
+            try {
+                const chatId = `${currentChatUserId}_${currentUser.uid}`;
+                const messagesRef = collection(db, "messages", chatId, "messages");
+                
+                await addDoc(messagesRef, {
+                    sender: 'admin',
+                    text: text,
+                    timestamp: serverTimestamp(),
+                    read: false
+                });
+                
+                const chatRef = doc(db, "messages", chatId);
+                await updateDoc(chatRef, {
+                    lastMessage: text,
+                    lastMessageTime: serverTimestamp(),
+                    unread: true
+                });
+                
+                // ইউজারকে নোটিফিকেশন পাঠাও
+                const userRef = doc(db, "users", currentChatUserId);
+                const userSnap = await getDoc(userRef);
+                if (userSnap.exists()) {
+                    await addDoc(collection(db, "notifications"), {
+                        userId: currentChatUserId,
+                        title: "📩 নতুন মেসেজ!",
+                        message: `অ্যাডমিন থেকে মেসেজ: ${text.substring(0, 50)}${text.length > 50 ? '...' : ''}`,
+                        read: false,
+                        createdAt: serverTimestamp()
+                    });
+                }
+                
+            } catch (error) {
+                console.error("Send admin message error:", error);
+                showAlert("মেসেজ পাঠাতে সমস্যা হয়েছে!");
+            }
+        };
 
         // ============================================================
         // 🔔 ALERTS
@@ -2426,6 +2735,8 @@
         console.log("  ✅ রিয়েল-টাইম অ্যাডমিন নোটিফিকেশন");
         console.log("  ✅ CSV এক্সপোর্ট");
         console.log("  ✅ ডেইলি অ্যাক্টিভ ইউজার + রেভিনিউ");
+        console.log("  ✅ ইউজারদের সাথে চ্যাট সিস্টেম");
+        console.log("  ✅ অ্যাপ ভার্সন কন্ট্রোল");
     </script>
 </body>
 </html>
